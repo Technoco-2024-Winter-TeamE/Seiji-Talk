@@ -115,3 +115,6 @@ CREATE USER 'flask_user'@'localhost' IDENTIFIED BY 'password';
 -- 権限の付与
 GRANT ALL PRIVILEGES ON unko.* TO 'flask_user'@'localhost';
 FLUSH PRIVILEGES;
+
+SHOW DATABASES;
+DROP DATABASE データベース名;

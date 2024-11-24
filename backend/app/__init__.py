@@ -2,6 +2,8 @@ from flask import Flask, json
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from app.config import Config
+import secrets
+import os
 
 db = SQLAlchemy()   #データベース操作のツールを準備（定義）
 migrate = Migrate() #データベース構造の変更を管理（変更）
@@ -15,6 +17,9 @@ def create_app():
 
     first_request_handled = False #リクエスト前かどうかのフラグ
 
+    # secret_keyを設定（環境変数から取得、なければランダムなキーを生成）
+    app.secret_key = os.getenv('SECRET_KEY', secrets.token_hex(16))
+
     @app.before_request
     def before_first_request():
         nonlocal first_request_handled  #グローバル変数を関数内で使うときの宣言
@@ -24,7 +29,9 @@ def create_app():
             first_request_handled = True    
 
     from app.routes.routes import bp as api_bp  
-    app.register_blueprint(api_bp, url_prefix='/api')  
+    from app.routes.auth_controller import auth_bp 
+    # app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')  
 
     return app
 

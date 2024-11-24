@@ -1,16 +1,16 @@
 from app.models.model import Status, Mode
 from app import db  # db = SQLAlchemy()のインスタンス
 
-def initialize_master_data():
+def register_master_data():
     """
     マスタテーブルの初期データを登録します。
     """
     # ステータスマスタの初期化
     if Status.query.count() == 0:
         statuses = [
-            Status(id=1, name="未回答"),
-            Status(id=2, name="回答中"),
-            Status(id=3, name="完了")
+            Status(id=1, name="PENDING"),
+            Status(id=2, name="SUCCESS"),
+            Status(id=3, name="FAILURE")
         ]
         db.session.add_all(statuses)
         db.session.commit()
@@ -21,9 +21,8 @@ def initialize_master_data():
     # モードマスタの初期化
     if Mode.query.count() == 0:
         modes = [
-            Mode(id=1, name="簡単"),
-            Mode(id=2, name="標準"),
-            Mode(id=3, name="高度")
+            Mode(id=1, name="latest"),
+            Mode(id=2, name="word")
         ]
         db.session.add_all(modes)
         db.session.commit()
