@@ -62,7 +62,7 @@ const ChatPage: React.FC = () => {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "background.default",
       }}
     >
       <div
@@ -74,7 +74,7 @@ const ChatPage: React.FC = () => {
           maxWidth: "800px",
           minWidth: "400px",
           height: "90vh",
-          backgroundColor: "#ffffff",
+          backgroundColor: "primary.light",
           borderRadius: "8px",
           boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
         }}

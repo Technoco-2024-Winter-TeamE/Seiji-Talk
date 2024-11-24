@@ -27,10 +27,10 @@ const ChatModeToggle: React.FC<ChatModeToggleProps> = ({ mode, onChange }) => {
           fontSize: "14px",
           fontWeight: "bold",
           "&.Mui-selected": {
-            backgroundColor: "#1e88e5",
-            color: "#ffffff",
+            backgroundColor: "primary.main",
+            color: "primary.light",
             "&:hover": {
-              backgroundColor: "#1565c0",
+              backgroundColor: "secondary.main",
             },
           },
         }}
@@ -45,10 +45,10 @@ const ChatModeToggle: React.FC<ChatModeToggleProps> = ({ mode, onChange }) => {
           fontSize: "14px",
           fontWeight: "bold",
           "&.Mui-selected": {
-            backgroundColor: "#1e88e5",
-            color: "#ffffff",
+            backgroundColor: "primary.main",
+            color: "primary.light",
             "&:hover": {
-              backgroundColor: "#1565c0",
+              backgroundColor: "secondary.main",
             },
           },
         }}

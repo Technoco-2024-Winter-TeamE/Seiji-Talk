@@ -43,7 +43,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, loading,
       />
       <Button
         variant="contained"
-        color="primary"
         onClick={onSend}
         disabled={loading}
         sx={{
@@ -53,6 +52,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, loading,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          color: "primary.light",
+          backgroundColor: "primary.main",
+          "&:hover": {
+            backgroundColor: "secondary.main", // ホバー時の背景色
+          },
         }}
       >
         <SendIcon />
