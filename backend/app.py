@@ -7,4 +7,4 @@ print("static_folder:", app.static_folder)
 print("template_folder:", app.template_folder)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,ssl_context='adhoc')

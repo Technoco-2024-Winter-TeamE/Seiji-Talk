@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from app.repositories.unko import UnkoRepository  
+from app.repositories.repository import UnkoRepository  
 
 bp = Blueprint('api', __name__)
 

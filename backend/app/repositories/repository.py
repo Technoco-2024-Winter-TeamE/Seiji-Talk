@@ -1,4 +1,4 @@
-from app.models.unko import db, Unko, Color, Size
+from app.models.model import db, Unko, Color, Size
 
 class UnkoRepository:
     """
