@@ -121,8 +121,10 @@ sudo systemctl stop mysql
 
 ↓これはいらんかな
 
-初期化: flask db init
-マイグレーション生成: flask db migrate -m "Initial migration"
+初期化: 
+flask db init
+マイグレーション生成: 
+flask db migrate -m "Initial migration"
 
 -- ユーザーの作成
 CREATE USER 'flask_user'@'localhost' IDENTIFIED BY 'password';
@@ -131,5 +133,7 @@ CREATE USER 'flask_user'@'localhost' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON unko.* TO 'flask_user'@'localhost';
 FLUSH PRIVILEGES;
 
+
+-- データベースの削除
 SHOW DATABASES;
 DROP DATABASE データベース名;

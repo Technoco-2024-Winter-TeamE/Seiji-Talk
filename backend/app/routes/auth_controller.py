@@ -137,6 +137,9 @@ def auth_callback() -> Response:
     if not user_info:
         return jsonify({"error": "Failed to fetch user info", "details": user_info_error}), 400
 
+    # ユーザーIDで登録済みか確認し、未登録なら登録
+    user = SeijiTalkRepository.add_user_if_not_exists(user_info)
+
     return jsonify({
         "access_token": access_token,
         "expires_in": token_data.get("expires_in"),
