@@ -14,11 +14,11 @@ def create_app():
     
     db.init_app(app)  #Flaskアプリとデータベースを接続
     migrate.init_app(app,db)    #スキーマ変更の管理を接続
-
-    first_request_handled = False #リクエスト前かどうかのフラグ
-
+    
     # secret_keyを設定（環境変数から取得、なければランダムなキーを生成）
     app.secret_key = os.getenv('SECRET_KEY', secrets.token_hex(16))
+
+    first_request_handled = False #最初期のリクエスト前かどうかのフラグ
 
     @app.before_request
     def before_first_request():

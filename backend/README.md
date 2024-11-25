@@ -19,7 +19,13 @@ sudo apt install mysql-server
 
 MySQLサービスを起動
 sudo systemctl start mysql
+#　できなければこっちで
+sudo service mysql start
+
+状態の確認（activeか）
 sudo systemctl status mysql
+sudo service mysql status
+
 
 mysql_secure_installationを使用して、MySQLの初期設定を行います。
 
@@ -38,6 +44,8 @@ MySQLにログイン
 
 sudo mysql -u root -p
 
+#　おそらくそのままenterで通る
+
 パスワード認証に切り替え
 以下のコマンドで認証方式を変更し、パスワードを設定します。
 
@@ -54,6 +62,12 @@ SELECT user, host, plugin FROM mysql.user WHERE user = 'root';
 
 mysql -u root -p
 
+
+## Google認証のキー取得
+
+GoogleCloud⇒APIとサービス⇒OAuth同意画面
+⇒新しいプロジェクト？⇒
+
 ##  初回セットアップ
 
 
@@ -67,7 +81,8 @@ cd /path/to/your/project
 python -m venv venv
 
 # 仮想環境を有効化
-source venv/bin/activate  # Windowsの場合: venv\Scripts\activate
+source venv/bin/activate  
+# Windowsの場合: venv\Scripts\activate
 
 # 依存パッケージをインストール
 pip install -r requirements.txt
@@ -89,7 +104,7 @@ mysql -u root -p
 -- データベースの作成
 CREATE DATABASE Seiji_talk CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
-注意！config.pyのURLは変更して下さい（ユーザ名・password・データベース名）
+# 注意！config.pyのURLは変更して下さい（ユーザ名・password・データベース名）
 
 # データベースのマイグレーションを実行
 flask db upgrade
