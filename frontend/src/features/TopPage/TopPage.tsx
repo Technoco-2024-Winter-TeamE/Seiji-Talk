@@ -1,8 +1,16 @@
 import React from "react";
-import { Typography, Button, Box, Paper, Container } from "@mui/material";
+import { Typography, Button, Box, Container } from "@mui/material";
 import { Google } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
+import speechBubbleLeft1 from "../../assets/images/speech-bubble-left-1.png"; 
+import speechBubbleLeft2 from "../../assets/images/speech-bubble-left-2.png"; 
+import speechBubbleLeft3 from "../../assets/images/speech-bubble-left-3.png"; 
+import speechBubbleLeft4 from "../../assets/images/speech-bubble-left-4.png"; 
+import speechBubbleRight1 from "../../assets/images/speech-bubble-right-1.png";
+import speechBubbleRight2 from "../../assets/images/speech-bubble-right-2.png";
+import speechBubbleRight3 from "../../assets/images/speech-bubble-right-3.png";
+import speechBubbleRight4 from "../../assets/images/speech-bubble-right-4.png";
 
 const TopPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +18,9 @@ const TopPage: React.FC = () => {
   const handleLogin = () => {
     navigate("/chat");
   };
+
+  const leftBubbles = [speechBubbleLeft1, speechBubbleLeft2, speechBubbleLeft3, speechBubbleLeft4];
+  const rightBubbles = [speechBubbleRight1, speechBubbleRight2, speechBubbleRight3, speechBubbleRight4];
 
   return (
     <Container
@@ -25,119 +36,119 @@ const TopPage: React.FC = () => {
         position: "relative",
       }}
     >
-      {/* 吹き出し (左) */}
-      <Paper
-        elevation={3}
-        sx={{
-          position: "absolute",
-          left: "10%",
-          top: "20%",
-          padding: 2,
-          maxWidth: 300,
-          backgroundColor: "#e3f2fd",
-          borderRadius: "16px",
-          "&:before": {
-            content: '""',
-            position: "absolute",
-            top: "50%",
-            left: "-10px",
-            width: 0,
-            height: 0,
-            borderStyle: "solid",
-            borderWidth: "10px 10px 10px 0",
-            borderColor: "transparent #e3f2fd transparent transparent",
-          },
-        }}
-      >
-        <Typography variant="body1" fontWeight="bold" color="#1e88e5">
-          「現在の総理大臣は誰？」
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          最新情報モードで調べると...
-        </Typography>
-      </Paper>
-
-      {/* 吹き出し (右) */}
-      <Paper
-        elevation={3}
-        sx={{
-          position: "absolute",
-          right: "10%",
-          top: "40%",
-          padding: 2,
-          maxWidth: 300,
-          backgroundColor: "#f3e5f5",
-          borderRadius: "16px",
-          "&:before": {
-            content: '""',
-            position: "absolute",
-            top: "50%",
-            right: "-10px",
-            width: 0,
-            height: 0,
-            borderStyle: "solid",
-            borderWidth: "10px 0 10px 10px",
-            borderColor: "transparent transparent transparent #f3e5f5",
-          },
-        }}
-      >
-        <Typography variant="body1" fontWeight="bold" color="#8e24aa">
-          「与党って何？」
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          用語解説モードで確認しましょう！
-        </Typography>
-      </Paper>
-
-      {/* ヘッダー部分 */}
+      {/* 左側の吹き出し */}
       <Box
-        component="img"
-        src={logo} // ロゴ画像を指定
-        alt="せいじトークロゴ"
         sx={{
-          width: "400px", // ロゴの幅を調整
-          marginBottom: 2,
+          position: "absolute",
+          left: 0,
+          marginLeft: "40px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          zIndex: 1,
         }}
-      />
-      <Typography
-        variant="h5"
-        color="textPrimary"
-        sx={{ marginBottom: 4, textAlign: "center" }}
       >
-        選挙・政治に対する疑問を、1つずつ解決していきましょう。
-      </Typography>
-
-      {/* ログインボタン */}
-      <Box display="flex" justifyContent="center">
-        <Button
-          variant="contained"
-          startIcon={<Google />}
-          size="large"
-          sx={{
-            borderRadius: 8,
-            padding: "10px 20px",
-            textTransform: "none",
-            fontSize: "16px",
-            color: "#EEEEEE",
-            backgroundColor: "#393E46",
-            "&:hover": {
-              backgroundColor: "#222831", // ホバー時の背景色
-            },
-          }}
-          onClick={handleLogin}
-        >
-          Googleでログイン
-        </Button>
+        {leftBubbles.map((src, index) => (
+          <Box
+            key={`left-bubble-${index}`}
+            component="img"
+            src={src}
+            alt={`吹き出し 左 ${index + 1}`}
+            sx={{
+              width: "270px", // 吹き出しのサイズ
+              marginLeft: index % 2 === 1 ? "180px" : "40px", // 2番目と4番目を中心側にずらす
+            }}
+          />
+        ))}
       </Box>
 
-      {/* フッター */}
-      <Typography
-        variant="body2"
-        color="textPrimary"
-        sx={{ marginTop: 4, textAlign: "center" }}
+      {/* 中央のコンテンツ */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          zIndex: 2,
+        }}
       >
-        © 2024 せいじトーク All Rights Reserved.
-      </Typography>
+        {/* ロゴ */}
+        <Box
+          component="img"
+          src={logo}
+          alt="せいじトークロゴ"
+          sx={{
+            width: "700px",
+            marginBottom: 6,
+          }}
+        />
+        <Typography
+          variant="h4"
+          color="textPrimary"
+          sx={{ marginBottom: 4, textAlign: "center" }}
+        >
+          選挙や政治に対する疑問を、<br />
+          1つずつ解決していきましょう。
+        </Typography>
+
+        {/* ログインボタン */}
+        <Box display="flex" justifyContent="center" sx={{ marginBottom: 4 }}>
+          <Button
+            variant="contained"
+            startIcon={<Google />}
+            size="large"
+            sx={{
+              borderRadius: 12, // ボタンの角を少し丸く
+              padding: "14px 28px", // ボタンの内側余白を拡大
+              textTransform: "none",
+              fontSize: "18px", // フォントサイズを少し大きく
+              color: "#EEEEEE",
+              backgroundColor: "#393E46",
+              "&:hover": {
+                backgroundColor: "#222831", // ホバー時の背景色
+              },
+            }}
+            onClick={handleLogin}
+          >
+            Googleでログイン
+          </Button>
+        </Box>
+
+        {/* フッター */}
+        <Typography
+          variant="body2"
+          color="textPrimary"
+          sx={{ marginTop: 4, textAlign: "center" }}
+        >
+          © 2024 せいじトーク All Rights Reserved.
+        </Typography>
+      </Box>
+
+      {/* 右側の吹き出し */}
+      <Box
+        sx={{
+          position: "absolute",
+          right: 0,
+          marginRight: "80px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          zIndex: 1,
+        }}
+      >
+        {rightBubbles.map((src, index) => (
+          <Box
+            key={`right-bubble-${index}`}
+            component="img"
+            src={src}
+            alt={`吹き出し 右 ${index + 1}`}
+            sx={{
+              width: "270px", // 吹き出しのサイズ
+              marginLeft: index % 2 === 0 ? "180px" : "40px", // 2番目と4番目を中心側にずらす
+            }}
+          />
+        ))}
+      </Box>
     </Container>
   );
 };
