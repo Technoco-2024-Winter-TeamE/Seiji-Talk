@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Typography, Button, Box, Container } from "@mui/material";
 import { Google } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
-import speechBubbleLeft1 from "../../assets/images/speech-bubble-left-1.png"; 
-import speechBubbleLeft2 from "../../assets/images/speech-bubble-left-2.png"; 
-import speechBubbleLeft3 from "../../assets/images/speech-bubble-left-3.png"; 
-import speechBubbleLeft4 from "../../assets/images/speech-bubble-left-4.png"; 
+import speechBubbleLeft1 from "../../assets/images/speech-bubble-left-1.png";
+import speechBubbleLeft2 from "../../assets/images/speech-bubble-left-2.png";
+import speechBubbleLeft3 from "../../assets/images/speech-bubble-left-3.png";
+import speechBubbleLeft4 from "../../assets/images/speech-bubble-left-4.png";
 import speechBubbleRight1 from "../../assets/images/speech-bubble-right-1.png";
 import speechBubbleRight2 from "../../assets/images/speech-bubble-right-2.png";
 import speechBubbleRight3 from "../../assets/images/speech-bubble-right-3.png";
@@ -14,6 +14,10 @@ import speechBubbleRight4 from "../../assets/images/speech-bubble-right-4.png";
 
 const TopPage: React.FC = () => {
   const navigate = useNavigate();
+  const [visibleLeft, setVisibleLeft] = useState<number>(0);
+  const [visibleRight, setVisibleRight] = useState<number>(0);
+  const [leftFinished, setLeftFinished] = useState<boolean>(false);
+  const [mainContentVisible, setMainContentVisible] = useState<boolean>(false);
 
   const handleLogin = () => {
     navigate("/chat");
@@ -22,9 +26,45 @@ const TopPage: React.FC = () => {
   const leftBubbles = [speechBubbleLeft1, speechBubbleLeft2, speechBubbleLeft3, speechBubbleLeft4];
   const rightBubbles = [speechBubbleRight1, speechBubbleRight2, speechBubbleRight3, speechBubbleRight4];
 
+  useEffect(() => {
+    // 左側の吹き出しを順番に表示
+    const leftInterval = setInterval(() => {
+      setVisibleLeft((prev) => {
+        if (prev < leftBubbles.length) {
+          return prev + 1;
+        } else {
+          clearInterval(leftInterval);
+          setLeftFinished(true);
+          return prev;
+        }
+      });
+    }, 300);
+
+    return () => clearInterval(leftInterval);
+  }, [leftBubbles.length]);
+
+  useEffect(() => {
+    if (leftFinished) {
+      // 右側の吹き出しを順番に表示
+      const rightInterval = setInterval(() => {
+        setVisibleRight((prev) => {
+          if (prev < rightBubbles.length) {
+            return prev + 1;
+          } else {
+            clearInterval(rightInterval);
+            setTimeout(() => setMainContentVisible(true), 500); // メインコンテンツ表示の遅延
+            return prev;
+          }
+        });
+      }, 300);
+
+      return () => clearInterval(rightInterval);
+    }
+  }, [leftFinished, rightBubbles.length]);
+
   return (
     <Container
-      maxWidth={false} // 横幅を画面いっぱいに広げる
+      maxWidth={false}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -55,14 +95,17 @@ const TopPage: React.FC = () => {
             src={src}
             alt={`吹き出し 左 ${index + 1}`}
             sx={{
-              width: "270px", // 吹き出しのサイズ
-              marginLeft: index % 2 === 1 ? "180px" : "40px", // 2番目と4番目を中心側にずらす
+              width: "270px",
+              marginLeft: index % 2 === 1 ? "180px" : "40px",
+              opacity: visibleLeft > index ? 1 : 0, // フェードイン
+              transform: visibleLeft > index ? "translateY(0)" : "translateY(20px)", // 浮き上がり
+              transition: "opacity 0.5s ease, transform 0.5s ease",
             }}
           />
         ))}
       </Box>
 
-      {/* 中央のコンテンツ */}
+      {/* メインコンテンツ */}
       <Box
         sx={{
           display: "flex",
@@ -70,9 +113,15 @@ const TopPage: React.FC = () => {
           alignItems: "center",
           textAlign: "center",
           zIndex: 2,
+          backgroundColor: "#FFFFFF",
+          padding: "24px 40px",
+          borderRadius: "24px",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          opacity: mainContentVisible ? 1 : 0,
+          transform: mainContentVisible ? "translateY(0)" : "translateY(20px)",
+          transition: "opacity 0.8s ease, transform 0.8s ease",
         }}
       >
-        {/* ロゴ */}
         <Box
           component="img"
           src={logo}
@@ -91,21 +140,20 @@ const TopPage: React.FC = () => {
           1つずつ解決していきましょう。
         </Typography>
 
-        {/* ログインボタン */}
         <Box display="flex" justifyContent="center" sx={{ marginBottom: 4 }}>
           <Button
             variant="contained"
             startIcon={<Google />}
             size="large"
             sx={{
-              borderRadius: 12, // ボタンの角を少し丸く
-              padding: "14px 28px", // ボタンの内側余白を拡大
+              borderRadius: 12,
+              padding: "14px 28px",
               textTransform: "none",
-              fontSize: "18px", // フォントサイズを少し大きく
+              fontSize: "18px",
               color: "#EEEEEE",
               backgroundColor: "#393E46",
               "&:hover": {
-                backgroundColor: "#222831", // ホバー時の背景色
+                backgroundColor: "#222831",
               },
             }}
             onClick={handleLogin}
@@ -114,7 +162,6 @@ const TopPage: React.FC = () => {
           </Button>
         </Box>
 
-        {/* フッター */}
         <Typography
           variant="body2"
           color="textPrimary"
@@ -143,8 +190,11 @@ const TopPage: React.FC = () => {
             src={src}
             alt={`吹き出し 右 ${index + 1}`}
             sx={{
-              width: "270px", // 吹き出しのサイズ
-              marginLeft: index % 2 === 0 ? "180px" : "40px", // 2番目と4番目を中心側にずらす
+              width: "270px",
+              marginLeft: index % 2 === 0 ? "180px" : "40px",
+              opacity: visibleRight > index ? 1 : 0,
+              transform: visibleRight > index ? "translateY(0)" : "translateY(20px)",
+              transition: "opacity 0.5s ease, transform 0.5s ease",
             }}
           />
         ))}
