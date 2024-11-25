@@ -9,11 +9,11 @@ class Question(db.Model):
     """
     __tablename__ = 'questions'
 
-    id: str = db.Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id: str = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     """質問ID"""
-    message: str = db.Column(db.String(255), nullable=False)
+    message: str = db.Column(db.String(512), nullable=False)    
     """質問内容"""
-    user_id: str = db.Column(db.String(255), db.ForeignKey('users.id'), nullable=False)
+    user_id: str = db.Column(db.String(32), db.ForeignKey('users.id'), nullable=False)
     """ユーザーID"""
     status_id: int = db.Column(db.Integer, db.ForeignKey('statuses.id'), nullable=False)
     """ステータスID"""
@@ -46,11 +46,11 @@ class User(db.Model):
     """
     __tablename__ = 'users'
 
-    id: str = db.Column(db.String(255), primary_key=True)  # GoogleのIDを保存
+    id: str = db.Column(db.String(32), primary_key=True)  # GoogleのIDを保存
     """ユーザーID"""
-    email: str = db.Column(db.String(255), unique=True, nullable=False)
+    email: str = db.Column(db.String(64), unique=True, nullable=False)
     """メールアドレス"""
-    name: str = db.Column(db.String(100), nullable=False)
+    name: str = db.Column(db.String(32), nullable=False)
     """名前"""
 
     questions: Mapped[list['Question']] = db.relationship('Question', back_populates='user')
@@ -63,9 +63,6 @@ class User(db.Model):
         }
 
 
-
-
-
 class Mode(db.Model):
     """
     モードクラス
@@ -74,7 +71,7 @@ class Mode(db.Model):
 
     id: int = db.Column(db.Integer, primary_key=True)
     """モードID"""
-    name: str = db.Column(db.String(100), nullable=False)
+    name: str = db.Column(db.String(32), nullable=False)
     """モード名"""
 
     questions: Mapped[list['Question']] = db.relationship('Question', back_populates='mode')
@@ -94,7 +91,7 @@ class Status(db.Model):
 
     id: int = db.Column(db.Integer, primary_key=True)
     """ステータスID"""
-    name: str = db.Column(db.String(100), nullable=False)
+    name: str = db.Column(db.String(32), nullable=False)
     """ステータス名"""
 
     questions: Mapped[list['Question']] = db.relationship('Question', back_populates='status')
@@ -114,19 +111,67 @@ class Answer(db.Model):
 
     id: int = db.Column(db.Integer, primary_key=True)
     """回答ID"""
-    question_id: str = db.Column(CHAR(36), db.ForeignKey('questions.id'), unique=True, nullable=False)
+    question_id: str = db.Column(db.String(36), db.ForeignKey('questions.id'), unique=True, nullable=False)
     """質問ID"""
-    message: str = db.Column(db.String(255), nullable=False)
+    message: str = db.Column(db.String(512), nullable=False)
     """回答内容"""
     created_at = db.Column(db.DateTime, default=db.func.now(), nullable=False)
     """作成日時"""
 
     question: Mapped['Question'] = db.relationship('Question', back_populates='answers')
-
+    related_words: Mapped[list['RelatedWord']] = db.relationship('RelatedWord', back_populates='answer')
+    references: Mapped[list['Reference']] = db.relationship('Reference', back_populates='answer')
     def to_dict(self) -> dict:
         return {
             'id': self.id,
             'question_id': self.question_id,
             'message': self.message,
             'created_at': self.created_at
+        }
+    
+class RelatedWord(db.Model):
+    """
+    関連語クラス
+    """
+    __tablename__ = 'related_words'
+
+    id: int = db.Column(db.Integer, primary_key=True)
+    """関連語ID"""
+    answer_id: int = db.Column(db.Integer, db.ForeignKey('answers.id'), nullable=False)
+    """回答ID"""
+    related_word: str = db.Column(db.String(64), nullable=False)
+    """関連語"""
+
+    answer: Mapped['Answer'] = db.relationship('Answer', back_populates='related_words')
+
+    def to_dict(self) -> dict:
+        return {
+            'id': self.id,
+            'answer_id': self.answer_id,
+            'related_word': self.related_word
+        }
+    
+class Reference(db.Model):
+    """
+    参考記事リンククラス
+    """
+    __tablename__ = 'references'
+
+    id: int = db.Column(db.Integer, primary_key=True)
+    """参考記事リンクID"""
+    answer_id: int = db.Column(db.Integer, db.ForeignKey('answers.id'), nullable=False)
+    """回答ID"""
+    title: str = db.Column(db.String(128), nullable=False)
+    """記事名"""
+    url: str = db.Column(db.String(512), nullable=False)
+    """記事URL"""
+
+    answer: Mapped['Answer'] = db.relationship('Answer', back_populates='references')
+
+    def to_dict(self) -> dict:
+        return {
+            'id': self.id,
+            'answer_id': self.answer_id,
+            'title': self.title,
+            'url': self.url
         }

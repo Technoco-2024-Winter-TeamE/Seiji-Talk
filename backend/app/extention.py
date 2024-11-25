@@ -20,7 +20,8 @@ def create_repeat_session() -> requests.Session:
                           http.HTTPStatus.INTERNAL_SERVER_ERROR.value,
                           http.HTTPStatus.BAD_GATEWAY.value,
                           http.HTTPStatus.SERVICE_UNAVAILABLE.value,
-                          http.HTTPStatus.GATEWAY_TIMEOUT.value
+                          http.HTTPStatus.GATEWAY_TIMEOUT.value,
+                          http.HTTPStatus.REQUEST_TIMEOUT.value
                           ], 
     )
     adapter = HTTPAdapter(max_retries=retry)

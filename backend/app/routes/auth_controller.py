@@ -1,4 +1,5 @@
 from flask import Blueprint,redirect, make_response, session, request, jsonify, Response
+from app.repositories.repository import SeijiTalkRepository
 import uuid
 import json
 from app.extention import create_repeat_session
