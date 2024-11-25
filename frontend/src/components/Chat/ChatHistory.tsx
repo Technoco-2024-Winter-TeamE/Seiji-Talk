@@ -40,7 +40,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onKeywordClick }) =
               width: "36px",
               height: "36px",
               borderRadius: "50%",
-              backgroundColor: message.role === "user" ? "#1e88e5" : "#6c757d",
+              backgroundColor: message.role === "user" ? "primary.main" : "primary.dark",
               color: "#fff",
               display: "flex",
               justifyContent: "center",
@@ -49,13 +49,13 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onKeywordClick }) =
               marginLeft: message.role === "user" ? "8px" : 0,
             }}
           >
-            {message.role === "user" ? "U" : "A"}
+            {message.role === "user" ? "U" : "AI"}
           </Box>
 
           {/* メッセージ内容 */}
           <Box
             sx={{
-              backgroundColor: message.role === "user" ? "#1e88e5" : "#fff",
+              backgroundColor: message.role === "user" ? "primary.main" : "#fff",
               color: message.role === "user" ? "#fff" : "#000",
               padding: "12px",
               borderRadius: "8px",
