@@ -28,9 +28,9 @@ def create_app():
             register_master_data()
             first_request_handled = True    
 
-    from app.routes.routes import bp as api_bp  
+    from app.routes.qa_controller import question_bp
     from app.routes.auth_controller import auth_bp 
-    # app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(question_bp, url_prefix='/api/questions')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')  
 
     return app

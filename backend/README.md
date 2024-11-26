@@ -137,3 +137,27 @@ FLUSH PRIVILEGES;
 -- データベースの削除
 SHOW DATABASES;
 DROP DATABASE データベース名;
+
+
+動作確認用
+
+curl -X POST https://localhost:5000/api/questions \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer ya29.a0AeDClZAfn5azRqs4Fe0Fv0GOsexm_3Y3i0dMk6_-szsOj9k1orWTa2WMZBTKpjEuYj_ZnrZ7g3rY5SAjmC9NuCcZ8MIzMCGIHtonlUmRD743W8wfArQCVmwC5ywbyMJL0MlTKo26d00zojlcX7noSXgNqDhb__E99aUaCgYKAeoSARMSFQHGX2Mid6TxkZ4OrCojydwM4cdePQ0170" \
+--insecure \
+-d '{
+    "message": "このAPIの動作確認をしたい。",
+    "mode": "word"
+}'
+
+
+
+
+curl -X POST https://localhost:5000/api/questions \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer ya29.a0AeDClZCBHkK9viikB9Eoba7jszelxYT7nLq_BzJSa8X0hgQH9y0HPs1nCbG2-fKN9JGZ6W-t5OmH3RiItYOYJTySme3o72OF-7VKwVndUZ77bnE909xO-l7_s_M0Dn9QquyppZSe9lTPfz0zj0yWKiKjcLuka2jKLkhN5NfwaCgYKATESARESFQHGX2MiAG3XlCL-p2yhw8xI_NKV_w0175" \
+--insecure \
+-d '{
+    "message": "このAPIの動作確認をしたいよお。",
+    "mode": "word"
+}'
