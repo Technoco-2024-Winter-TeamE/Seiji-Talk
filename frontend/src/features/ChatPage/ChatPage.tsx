@@ -62,7 +62,7 @@ const ChatPage: React.FC = () => {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "background.default",
       }}
     >
       <div
@@ -74,9 +74,11 @@ const ChatPage: React.FC = () => {
           maxWidth: "800px",
           minWidth: "400px",
           height: "90vh",
-          backgroundColor: "#ffffff",
-          borderRadius: "8px",
+          backgroundColor: "primary.light",
+          border: "2px solid #ddd", // ボーダーを追加
+          borderRadius: "16px", // 上側の角を丸くする
           boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+          overflow: "hidden", // ボーダー内に内容を収める
         }}
       >
         {/* チャット履歴 */}
@@ -85,11 +87,12 @@ const ChatPage: React.FC = () => {
         {/* 入力エリア */}
         <div
           style={{
-            borderTop: "1px solid #ddd",
+            borderTop: "2px solid #ddd",
             padding: "16px",
             display: "flex",
             flexDirection: "column",
             gap: "8px",
+            backgroundColor: "#f9f9f9",
           }}
         >
           <ChatModeToggle mode={mode} onChange={setMode} />
@@ -101,13 +104,14 @@ const ChatPage: React.FC = () => {
             placeholder={
               mode === "latest"
                 ? "質問を入力してください..."
-                : "用語を入力してください..."
+                : "質問を入力してください..."
             }
           />
         </div>
       </div>
     </div>
   );
+  
 };
 
 export default ChatPage;
