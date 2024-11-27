@@ -124,6 +124,7 @@ async def generate_word_answer(question: str):
         print(f"Error generating search query: {str(e)}")
         return None
 
+
 async def rank_search_results(query: str, results: list[dict]) -> list[dict]:
     """
     検索クエリと検索結果を基に、OpenAIを使って適切な順序に並べ替える。
@@ -133,36 +134,86 @@ async def rank_search_results(query: str, results: list[dict]) -> list[dict]:
         results (list[dict]): 検索結果のリスト [{'title': '...', 'url': '...', 'snippet': '...'}, ...]
 
     Returns:
-        list[dict]: 並べ替えられた検索結果リスト
+        list[dict]: 並べ替えられた検索結果リスト（上位3件）
     """
-    # プロンプトの構築
-    prompt = (
+    # システムプロンプト
+    system_prompt = (
+        "あなたは検索結果を評価し、クエリに基づいて最も関連性の高い順に並べ替える専門家です。\n"
+        "以下の要素を考慮して評価を行い、結果を厳密に指定されたJSON形式で返してください。\n"
+        "考慮すべき要素:\n"
+        "- クエリとの関連性: 検索クエリ内のキーワードが結果のタイトルやスニペットにどの程度一致しているか。\n"
+        "- スニペットの内容: スニペットが具体的で役に立つ情報を含んでいるか。\n"
+        "- URLの信頼性: 信頼性のあるドメイン（例: .edu, .gov, .jp など）か。\n"
+        "- 情報の鮮度: 最新の情報を優先。\n"
+        "- 情報の具体性: 内容が曖昧でなく具体的か。\n\n"
+        "JSON形式のルール:\n"
+        "1. 出力形式は以下のようにしてください:\n"
+        '[{"title": "タイトル1", "url": "URL1", "snippet": "スニペット1"}, {"title": "タイトル2", "url": "URL2", "snippet": "スニペット2"}]\n'
+        "2. すべてのキーと値はダブルクォーテーションで囲む必要があります。\n"
+        "3. JSON以外の形式や追加のコメントを含めないでください。"
+    )
+
+    # ユーザープロンプト
+    user_prompt = (
         f"以下は検索クエリ「{query}」に対する検索結果のリストです。\n"
-        "クエリに基づいて最も関連性が高い順に並べ替えてください。\n"
-        "スニペットやURLの信頼性も考慮してください。\n\n"
+        "検索結果を並べ替えてください。\n\n"
         f"検索クエリ: {query}\n"
         "検索結果:\n"
-        f"{results}\n\n"
-        "出力形式:\n"
-        "[\n"
-        "  {\"title\": \"...\", \"url\": \"...\", \"snippet\": \"...\"},\n"
-        "]\n"
+        f"{json.dumps(results, ensure_ascii=False, indent=2)}\n\n"
     )
 
-    # OpenAI APIリクエスト
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=1000,
-        temperature=0
-    )
-
-    # OpenAIからの応答を解析
     try:
-        sorted_results = eval(response["choices"][0]["message"]["content"])
-        return sorted_results
+        # OpenAI APIリクエスト
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",  # 使用するモデル
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            max_tokens=1000,
+            temperature=0.7,
+            n=1
+        )
+
+        # OpenAIからの応答をパース
+        content = response.choices[0].message.content.strip()
+
+        # 応答が空の場合のチェック
+        if not content:
+            raise ValueError("OpenAIからの応答が空です。")
+
+        try:
+            # JSON形式にパース
+            parsed_json = json.loads(content)
+
+            # フォーマットの詳細な検証
+            if (
+                isinstance(parsed_json, list) and
+                all(
+                    isinstance(item, dict) and
+                    "title" in item and isinstance(item["title"], str) and
+                    "url" in item and isinstance(item["url"], str) and
+                    "snippet" in item and isinstance(item["snippet"], str)
+                    for item in parsed_json
+                )
+            ):
+                return parsed_json[:3]  # 上位3件を返す
+            else:
+                print("JSON形式は正しいが、フォーマットが不適切です。")
+                return None  # フォーマットが不正の場合
+
+        except json.JSONDecodeError as e:
+            # 応答をトリムして解析の再試行
+            fixed_content = content.splitlines()
+            try:
+                parsed_json = json.loads("".join(fixed_content))
+                return parsed_json[:3]
+            except Exception as inner_e:
+                raise ValueError(f"JSON解析に失敗しました: {inner_e}\n応答内容:\n{content}")
+
     except Exception as e:
-        raise ValueError(f"並べ替え結果の解析に失敗しました: {e}")
+        raise ValueError(f"並べ替え中にエラーが発生しました: {e}")
+
 
 if __name__ == "__main__":
     async def main():

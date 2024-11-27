@@ -1,8 +1,12 @@
 from app import db
 from app.models.model import Question, Answer
 import aiohttp
-from services.openai_service import generate_search_query,generate_word_answer
-from services.search_service import 
+from services.openai_service import generate_search_query,generate_word_answer,rank_search_results
+from services.search_service import search_with_fallback
+import json
+
+# from openai_service import generate_search_query,generate_word_answer,rank_search_results
+# from search_service import search_with_fallback
 
 async def handle_latest_mode(question :Question):
     """
@@ -20,19 +24,29 @@ async def handle_latest_mode(question :Question):
         search_query = await generate_search_query(question.message)
         
         # 検索結果を取得（Google API または DuckDuckGo API）
-        search_results = await search_with_keywords(keywords)
-        
-        # 検索結果があれば、それを要約
-        if search_results:
-            summarized_results = await summarize_search_results(search_results)
-            print(f"Summarized search results: {summarized_results}")
+        search_results = await search_with_fallback(search_query)
+
+        # 検索結果を出力
+        print("検索結果:")
+        for result in search_results:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+        ranked_results = await rank_search_results(search_query,search_results)
+
+        print(ranked_results)
+
+        # # 検索結果があれば、それを要約
+        # if search_results:
+        #     summarized_results = await summarize_search_results(search_results)
+        #     print(f"Summarized search results: {summarized_results}")
             
-            # 要約結果をデータベースに保存するなどの処理
-            # 例えば、Answerを作成して返すなど
-            await save_answer(question, summarized_results)
+        #     # 要約結果をデータベースに保存するなどの処理
+        #     # 例えば、Answerを作成して返すなど
+        #     await save_answer(question, summarized_results)
         
-        else:
-            print("No search results found.")
+        # else:
+        #     print("No search results found.")
 
     except Exception as e:
         print(f"Error in handle_latest_mode for question {question.id}: {str(e)}")
@@ -99,4 +113,40 @@ async def process_question(question_id: str):
 
     except Exception as e:
         print(f"Error in process_question for question {question_id}: {str(e)}")
+
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    async def main():
+        # ユーザーに質問を入力してもらう
+        question = input("検索クエリを生成したい質問を入力してください: ")
+
+        # generate_search_query関数を実行して検索クエリを生成
+        search_query = await generate_search_query(question)
+
+        if search_query:
+            print(f"生成された検索クエリ: {search_query}")
+        else:
+            print("検索クエリの生成に失敗しました。")
+            return
+
+        # 検索結果を取得（Google API または DuckDuckGo API）
+        search_results = await search_with_fallback(search_query)
+
+        # 検索結果を出力
+        print("検索結果:")
+        for result in search_results:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+
+        # 検索結果を並べ替え
+        ranked_results = await rank_search_results(search_query, search_results)
+
+        print("並べ替えられた検索結果:")
+        for result in ranked_results:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+
+    asyncio.run(main())
+
 

@@ -11,7 +11,7 @@ API_KEY = config['search']['api_key']
 SEARCH_ENGINE_ID = config['search']['search_engine_id']
 GOOGLE_API_URL = "https://www.googleapis.com/customsearch/v1"
 
-async def search_google(query, num_results=10) -> list[dict]:
+async def search_google(query, num_results=6) -> list[dict]:
     """
     Google Custom Search APIを非同期で使って指定したクエリで検索し、結果を整形する。
 
@@ -42,7 +42,8 @@ async def search_google(query, num_results=10) -> list[dict]:
                 results_list = [
                     {
                         "title": item.get("title", ""),
-                        "url": item.get("link", "")
+                        "url": item.get("link", ""),
+                        "snippet": item.get("snippet", "")  # スニペットを追加
                     }
                     for item in data.get("items", [])
                 ]
@@ -50,7 +51,7 @@ async def search_google(query, num_results=10) -> list[dict]:
             else:
                 raise Exception(f"APIエラー: {response.status}, {await response.text()}")
 
-def search_duckduckgo(search_query: str) -> list[dict]:
+def search_duckduckgo(search_query: str,num_results=6) -> list[dict]:
     """
     DuckDuckGo検索を行い、結果をタイトルとURLのリスト形式で返す。
 
@@ -58,7 +59,7 @@ def search_duckduckgo(search_query: str) -> list[dict]:
         search_query (str): 検索クエリ
 
     Returns:
-        list[dict]: 検索結果のリスト [{'title': 'ページタイトル', 'url': 'URL'}, ...]
+        list[dict]: 検索結果のリスト [{'title': 'ページタイトル', 'url': 'URL','snippet': '概要'}, ...]
     """
     results_list = []
     with DDGS() as ddgs:
@@ -67,28 +68,55 @@ def search_duckduckgo(search_query: str) -> list[dict]:
             region='jp-jp',        
             safesearch='off',
             timelimit=None,
-            max_results=10
+            max_results=num_results
         ))
         
         for result in results:
             results_list.append({
                 "title": result.get("title", ""),
-                "url": result.get("href", "")
+                "url": result.get("href", ""),
+                "snippet": result.get("body", "")  # スニペットを追加
             })
     
     return results_list
 
+async def search_with_fallback(query: str) -> list[dict]:
+    """
+    Google Custom Search APIで検索し、エラー時にはDuckDuckGoに切り替える。
 
+    Args:
+        query (str): 検索クエリ
+        num_results (int): 取得する検索結果の数
+
+    Returns:
+        list[dict]: 検索結果のリスト [{'title': '...', 'url': '...', 'snippet': '...'}, ...]
+    """
+    try:
+        # Google APIで検索
+        print("Google Custom Search APIを使用しています...")
+        results = await search_google(query)
+        return results
+    except Exception as e:
+        print(f"Google APIでエラーが発生: {e}")
+        print("DuckDuckGoに切り替えます...")
+
+        # DuckDuckGoで検索
+        results = search_duckduckgo(query)
+        return results
 
 async def main():
     try:
-        query = "東京大学医学部単位数"
-        results = search_duckduckgo(query)
+        query = "徳島大学 住所"
+        results = await search_google(query)
+
+        print("=== 検索結果の全体を出力 ===")
         for result in results:
             print(json.dumps(result, indent=2, ensure_ascii=False))
-        # query = "東京大学 医学部 単位数"
-        # results = await search_google(query)
-        # print(results)
+
+        print("\n=== Snippetの内容をすべて表示 ===")
+        for result in results:
+            snippet = result.get("snippet", "スニペットが見つかりません")
+            print(f"Snippet: {snippet}\n")
     except Exception as e:
         print(f"エラーが発生しました: {e}")
 
