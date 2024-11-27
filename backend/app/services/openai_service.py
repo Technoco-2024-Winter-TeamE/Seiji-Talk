@@ -1,10 +1,6 @@
-import aiohttp
 from openai import OpenAI
 import json
-import asyncio
 import os
-# from app.services.scraping import scrape_page_content
-# from app.services.search_service import search_with_fallback
 
 from app.services.scraping import scrape_page_content
 from app.services.search_service import search_with_fallback
@@ -14,7 +10,7 @@ from app.services.search_service import search_with_fallback
 client = OpenAI()
 
 
-async def generate_search_query(question: str):
+def generate_search_query(question: str):
     """
     質問内容をOpenAI APIで処理し、検索エンジン向けの最適化されたクエリを生成する。
 
@@ -59,7 +55,7 @@ async def generate_search_query(question: str):
         return None
 
 
-async def generate_word_answer(question: str):
+def generate_word_answer(question: str):
     """
     質問内容をOpenAI APIで処理し、用語検索や従来知識の回答を出力する。
 
@@ -129,7 +125,7 @@ async def generate_word_answer(question: str):
         return None
 
 
-async def rank_search_results(query: str, results: list[dict]) -> list[dict]:
+def rank_search_results(query: str, results: list[dict]) -> list[dict]:
     """
     検索クエリと検索結果を基に、OpenAIを使って適切な順序に並べ替える。
 
@@ -219,7 +215,7 @@ async def rank_search_results(query: str, results: list[dict]) -> list[dict]:
         raise ValueError(f"並べ替え中にエラーが発生しました: {e}")
 
 
-async def generate_summary(scraped_content: str, question: str) -> str:
+def generate_summary(scraped_content: str, question: str) -> str:
     """
     スクレイピングした内容をOpenAI APIで処理し、質問内容に合わせて要約を行う。
 
@@ -269,7 +265,7 @@ async def generate_summary(scraped_content: str, question: str) -> str:
 
 
 
-async def process_search_results(query: str, results: list[dict]) -> list[dict]:
+def process_search_results(query: str, results: list[dict]) -> list[dict]:
     """
     検索結果を並べ替え、上位3件をスクレイピングし、質問内容に合った要約を生成する。
 
@@ -303,9 +299,9 @@ async def process_search_results(query: str, results: list[dict]) -> list[dict]:
 
     for result in results:
         url = result["url"]
-        content = await scrape_page_content(url)
+        content = scrape_page_content(url)
         if content:
-            summary = await generate_summary(content, query)
+            summary = generate_summary(content, query)
             summaries.append({"title": result["title"], "url": url, "summary": summary})
 
     # for item in summaries:
@@ -314,7 +310,7 @@ async def process_search_results(query: str, results: list[dict]) -> list[dict]:
 
     # summariesの"summary"部分を結合して統合要約を生成
     combined_summaries = "\n".join([entry["summary"] for entry in summaries])
-    final_summary = await generate_summary(combined_summaries, query)
+    final_summary = generate_summary(combined_summaries, query)
 
     # 辞書型に再構成
     response = {
@@ -328,13 +324,13 @@ async def process_search_results(query: str, results: list[dict]) -> list[dict]:
 
 
 if __name__ == "__main__":
-    async def main():
+    def main():
         # ユーザーに質問を入力してもらう
         question = "今の徳島の県知事を教えて"
 
         # generate_search_query関数を実行して検索クエリを生成
         # search_query = await generate_search_query(question)
-        answer = await generate_word_answer(question)
+        answer = generate_word_answer(question)
 
         print(answer)
         # if search_query:
@@ -351,6 +347,3 @@ if __name__ == "__main__":
 
         # print(json.dumps(response, indent=2, ensure_ascii=False))
 
-
-    # asyncioのイベントループでmainを実行
-    asyncio.run(main())

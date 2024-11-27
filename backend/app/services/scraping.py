@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import aiohttp
+import requests
 
 async def scrape_page_content(url: str) -> str:
     """
@@ -12,15 +12,14 @@ async def scrape_page_content(url: str) -> str:
         str: ページのテキスト内容
     """
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, timeout=10) as response:
-                response.raise_for_status()  # HTTPエラーを確認
-                html_content = await response.text()  # ページ内容を非同期で取得
-                soup = BeautifulSoup(html_content, "html.parser")
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()  # HTTPエラーを確認
+        html_content = response.text  # ページ内容を取得
+        soup = BeautifulSoup(html_content, "html.parser")
 
-                # 主に本文に含まれるテキストを抽出
-                text = soup.get_text(separator="\n", strip=True)
-                return text
+        # 主に本文に含まれるテキストを抽出
+        text = soup.get_text(separator="\n", strip=True)
+        return text
     except Exception as e:
         print(f"ページ内容の取得に失敗しました: {e}")
         return ""

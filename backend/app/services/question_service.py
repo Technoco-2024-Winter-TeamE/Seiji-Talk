@@ -1,18 +1,16 @@
 from app import db
 from app.models.model import Question, Answer
 from app.repositories.repository import SeijiTalkRepository
-import aiohttp
 from app.services.openai_service import generate_search_query,generate_word_answer,rank_search_results, process_search_results
 from app.services.search_service import search_with_fallback
 import json
-import asyncio
 
 # from openai_service import generate_search_query,generate_word_answer,rank_search_results
 # from search_service import search_with_fallback
 
 
 
-async def handle_latest_mode(question :Question):
+def handle_latest_mode(question :Question):
     """
     'latest' モードの場合の処理。
     外部API（例: Google APIやDuckDuckGo API）を使って検索し、結果を要約する。
@@ -26,10 +24,10 @@ async def handle_latest_mode(question :Question):
     """
     try:
         # 質問から検索クエリを生成
-        search_query = await generate_search_query(question.message)
+        search_query = generate_search_query(question.message)
         
         # 検索結果を取得（Google API または DuckDuckGo API）
-        search_results = await search_with_fallback(search_query)
+        search_results = search_with_fallback(search_query)
 
         # 検索結果を出力
         print("検索結果:")
@@ -37,19 +35,19 @@ async def handle_latest_mode(question :Question):
             print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
-        ranked_results = await rank_search_results(search_query,search_results)
+        ranked_results = rank_search_results(search_query,search_results)
 
 
-        final_results = await process_search_results(question.message,ranked_results)
+        final_results = process_search_results(question.message,ranked_results)
 
 
-        data = await  asyncio.to_thread(SeijiTalkRepository.save_latest_answer(question,final_results))
+        data = SeijiTalkRepository.save_latest_answer(question,final_results)
 
     except Exception as e:
         print(f"Error in handle_latest_mode for question {question.id}: {str(e)}")
 
 
-async def handle_word_mode(question :Question):
+def handle_word_mode(question :Question):
     """
     'word' モードの場合の処理。
     chatGPTに対して質問を流し、それに対する回答を得る。
@@ -62,15 +60,15 @@ async def handle_word_mode(question :Question):
     """
     try:
         # 質問からキーワードを抽出 OpenAiで抽出
-        answer = await generate_word_answer(question.message)
+        answer = generate_word_answer(question.message)
         
-        data = await asyncio.to_thread(SeijiTalkRepository.save_word_answer, question, answer)
+        data = SeijiTalkRepository.save_word_answer(question, answer)
     except Exception as e:
         print(f"Error in handle_latest_mode for question {question.id}: {str(e)}")
 
 
 
-async def process_question(question_id: str) -> None:
+def process_question(question_id: str) -> None:
     """
     質問IDを受け取り、対応する質問を取得して非同期で処理を行う。
 
@@ -89,10 +87,10 @@ async def process_question(question_id: str) -> None:
 
         if question.mode.name == "latest":
             # "latest" モードに対する処理
-            await handle_latest_mode(question)  # 例: 外部API呼び出しや検索
+            handle_latest_mode(question)  # 例: 外部API呼び出しや検索
         elif question.mode.name == "word":
             # "word" モードに対する処理
-            await handle_word_mode(question)  # 例: 関連語の抽出や検出に使う
+            handle_word_mode(question)  # 例: 関連語の抽出や検出に使う
 
     except Exception as e:
         print(f"Error in process_question for question {question_id}: {str(e)}")
@@ -100,14 +98,13 @@ async def process_question(question_id: str) -> None:
 
 
 if __name__ == "__main__":
-    import asyncio
 
-    async def main():
+    def main():
         # ユーザーに質問を入力してもらう
         question = input("検索クエリを生成したい質問を入力してください: ")
 
         # generate_search_query関数を実行して検索クエリを生成
-        search_query = await generate_search_query(question)
+        search_query = generate_search_query(question)
 
         if search_query:
             print(f"生成された検索クエリ: {search_query}")
@@ -116,7 +113,7 @@ if __name__ == "__main__":
             return
 
         # 検索結果を取得（Google API または DuckDuckGo API）
-        search_results = await search_with_fallback(search_query)
+        search_results = search_with_fallback(search_query)
 
         # 検索結果を出力
         print("検索結果:")
@@ -124,12 +121,11 @@ if __name__ == "__main__":
             print(json.dumps(result, indent=2, ensure_ascii=False))
 
         # 検索結果を並べ替え
-        ranked_results = await rank_search_results(search_query, search_results)
+        ranked_results = rank_search_results(search_query, search_results)
 
         print("並べ替えられた検索結果:")
         for result in ranked_results:
             print(json.dumps(result, indent=2, ensure_ascii=False))
 
-    asyncio.run(main())
 
 

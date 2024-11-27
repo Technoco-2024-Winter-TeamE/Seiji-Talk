@@ -108,8 +108,7 @@ def create_question():
         )
 
         # 非同期タスクをスレッドで実行
-        thread = threading.Thread(target=run_async_task, args=(process_question, new_question.id))
-        thread.start()
+        threading.Thread(target=process_question,args=(new_question.id)).start
         
         # 質問IDを返却（非同期ステータス）
         return jsonify({
