@@ -1,6 +1,6 @@
 
 import requests
-from duckduckgo_search import DDGS
+from duckduckgo_search import AsyncDDGS 
 import json, aiohttp,asyncio
 
 
@@ -20,9 +20,7 @@ async def search_google(query, num_results=6) -> list[dict]:
         num_results (int): 取得する検索結果の数
 
     Returns:
-        list[dict]: 整形された検索結果のリスト。各辞書は以下のキーを持つ:
-            - "title": 検索結果のタイトル
-            - "url": 検索結果のリンク
+        list[dict]: 検索結果のリスト [{'title': 'ページタイトル', 'url': 'URL','snippet': '概要'}, ...]
     """
     if not query:
         raise ValueError("検索クエリは必須です")
@@ -51,7 +49,7 @@ async def search_google(query, num_results=6) -> list[dict]:
             else:
                 raise Exception(f"APIエラー: {response.status}, {await response.text()}")
 
-def search_duckduckgo(search_query: str,num_results=6) -> list[dict]:
+async def search_duckduckgo(search_query: str,num_results=6) -> list[dict]:
     """
     DuckDuckGo検索を行い、結果をタイトルとURLのリスト形式で返す。
 
@@ -62,7 +60,7 @@ def search_duckduckgo(search_query: str,num_results=6) -> list[dict]:
         list[dict]: 検索結果のリスト [{'title': 'ページタイトル', 'url': 'URL','snippet': '概要'}, ...]
     """
     results_list = []
-    with DDGS() as ddgs:
+    async with AsyncDDGS()as ddgs:
         results = list(ddgs.text(
             keywords=search_query,
             region='jp-jp',        
@@ -109,9 +107,9 @@ async def main():
         query = "徳島大学 住所"
         results = await search_google(query)
 
-        print("=== 検索結果の全体を出力 ===")
-        for result in results:
-            print(json.dumps(result, indent=2, ensure_ascii=False))
+        # print("=== 検索結果の全体を出力 ===")
+        # for result in results:
+        #     print(json.dumps(result, indent=2, ensure_ascii=False))
 
         print("\n=== Snippetの内容をすべて表示 ===")
         for result in results:
