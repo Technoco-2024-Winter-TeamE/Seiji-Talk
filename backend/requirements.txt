@@ -18,3 +18,8 @@ zipp==3.20.2
 pymysql==1.1.0
 cryptography==43.0.3
 requests==2.32.3
+aiohttp==3.11.7
+hypercorn==0.17.3
+openai==1.55.1
+duckduckgo_search==6.3.7
+beautifulsoup4==4.12.3

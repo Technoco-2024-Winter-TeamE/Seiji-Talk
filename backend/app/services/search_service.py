@@ -4,7 +4,7 @@ from duckduckgo_search import AsyncDDGS
 import json, aiohttp,asyncio
 
 
-with open('../google_config.json') as config_file:
+with open('app/google_config.json') as config_file:
     config = json.load(config_file)
 
 API_KEY = config['search']['api_key']
@@ -104,8 +104,8 @@ async def search_with_fallback(query: str) -> list[dict]:
 
 async def main():
     try:
-        query = "徳島大学 住所"
-        results = await search_google(query)
+        query = "徳島県 県知事"
+        results = await search_duckduckgo(query)
 
         # print("=== 検索結果の全体を出力 ===")
         # for result in results:

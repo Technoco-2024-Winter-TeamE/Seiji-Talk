@@ -1,16 +1,15 @@
 from app import db
 from app.models.model import Question, Answer
-from app.repositories.repository import SeijiTalkRepository
 import aiohttp
-from app.services.openai_service import generate_search_query,generate_word_answer,rank_search_results, process_search_results
-from app.services.search_service import search_with_fallback
+from services.openai_service import generate_search_query,generate_word_answer,rank_search_results
+from services.search_service import search_with_fallback
 import json
-import asyncio
 
 # from openai_service import generate_search_query,generate_word_answer,rank_search_results
 # from search_service import search_with_fallback
 
 
+async def 
 
 async def handle_latest_mode(question :Question):
     """
@@ -21,8 +20,7 @@ async def handle_latest_mode(question :Question):
         question (Question): 質問オブジェクト。
 
     Returns:
-        None    (データベースにとうろくしたら終わり)
-
+        None
     """
     try:
         # 質問から検索クエリを生成
@@ -40,10 +38,20 @@ async def handle_latest_mode(question :Question):
         ranked_results = await rank_search_results(search_query,search_results)
 
 
-        final_results = await process_search_results(question.message,ranked_results)
 
+        print(ranked_results)
 
-        data = await  asyncio.to_thread(SeijiTalkRepository.save_latest_answer(question,final_results))
+        # # 検索結果があれば、それを要約
+        # if search_results:
+        #     summarized_results = await summarize_search_results(search_results)
+        #     print(f"Summarized search results: {summarized_results}")
+            
+        #     # 要約結果をデータベースに保存するなどの処理
+        #     # 例えば、Answerを作成して返すなど
+        #     await save_answer(question, summarized_results)
+        
+        # else:
+        #     print("No search results found.")
 
     except Exception as e:
         print(f"Error in handle_latest_mode for question {question.id}: {str(e)}")
@@ -51,26 +59,40 @@ async def handle_latest_mode(question :Question):
 
 async def handle_word_mode(question :Question):
     """
-    'word' モードの場合の処理。
-    chatGPTに対して質問を流し、それに対する回答を得る。
+    'latest' モードの場合の処理。
+    外部API（例: Google APIやDuckDuckGo API）を使って検索し、結果を要約する。
 
     Args:
         question (Question): 質問オブジェクト。
 
     Returns:
-        None (データベースに追加して終わり)
+        None
     """
     try:
-        # 質問からキーワードを抽出 OpenAiで抽出
-        answer = await generate_word_answer(question.message)
+        # 質問からキーワードを抽出（OpenAIや他の方法で抽出）
+        keywords = await extract_keywords_from_question(question.message)
         
-        data = await asyncio.to_thread(SeijiTalkRepository.save_word_answer, question, answer)
+        # 検索結果を取得（Google API または DuckDuckGo API）
+        search_results = await search_with_keywords(keywords)
+        
+        # 検索結果があれば、それを要約
+        if search_results:
+            summarized_results = await summarize_search_results(search_results)
+            print(f"Summarized search results: {summarized_results}")
+            
+            # 要約結果をデータベースに保存するなどの処理
+            # 例えば、Answerを作成して返すなど
+            await save_answer(question, summarized_results)
+        
+        else:
+            print("No search results found.")
+
     except Exception as e:
         print(f"Error in handle_latest_mode for question {question.id}: {str(e)}")
 
 
 
-async def process_question(question_id: str) -> None:
+async def process_question(question_id: str):
     """
     質問IDを受け取り、対応する質問を取得して非同期で処理を行う。
 
@@ -92,7 +114,7 @@ async def process_question(question_id: str) -> None:
             await handle_latest_mode(question)  # 例: 外部API呼び出しや検索
         elif question.mode.name == "word":
             # "word" モードに対する処理
-            await handle_word_mode(question)  # 例: 関連語の抽出や検出に使う
+            await handle_word_mode(question)  # 例: 関連語の抽出や検
 
     except Exception as e:
         print(f"Error in process_question for question {question_id}: {str(e)}")

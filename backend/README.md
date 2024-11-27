@@ -155,9 +155,9 @@ curl -X POST https://localhost:5000/api/questions \
 
 curl -X POST https://localhost:5000/api/questions \
 -H "Content-Type: application/json" \
--H "Authorization: Bearer ya29.a0AeDClZCBHkK9viikB9Eoba7jszelxYT7nLq_BzJSa8X0hgQH9y0HPs1nCbG2-fKN9JGZ6W-t5OmH3RiItYOYJTySme3o72OF-7VKwVndUZ77bnE909xO-l7_s_M0Dn9QquyppZSe9lTPfz0zj0yWKiKjcLuka2jKLkhN5NfwaCgYKATESARESFQHGX2MiAG3XlCL-p2yhw8xI_NKV_w0175" \
+-H "Authorization: Bearer ya29.a0AeDClZAugy925Jyh9ZdwUbgPjlL5KQ1xodnNd3Szu6EgPa3cApQcjqejzC4thL80TLkdiXy46c1ZFVcsL7QkTuRG30SiMjY9bFgg11znWSbWSn8bokRU4LqhxTCg8rxjk59Ze7itWjGBZxcC-_kD7t3m4xAsMKBuDUwaCgYKATUSARMSFQHGX2MihorDTnD8qNWN2zY-in2LPA0170" \
 --insecure \
 -d '{
-    "message": "このAPIの動作確認をしたいよお。",
+    "message": "直接請求権について教えて",
     "mode": "word"
 }'

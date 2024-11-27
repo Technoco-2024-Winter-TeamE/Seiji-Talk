@@ -3,6 +3,11 @@ from openai import OpenAI
 import json
 import asyncio
 import os
+# from app.services.scraping import scrape_page_content
+# from app.services.search_service import search_with_fallback
+
+from app.services.scraping import scrape_page_content
+from app.services.search_service import search_with_fallback
 
 # OpenAI APIキーの設定（環境変数や設定ファイルから取得するのが推奨）
 #os.environ.get("OPENAI_API_KEY")
@@ -52,7 +57,6 @@ async def generate_search_query(question: str):
     except Exception as e:
         print(f"Error generating search query: {str(e)}")
         return None
-
 
 
 async def generate_word_answer(question: str):
@@ -215,19 +219,138 @@ async def rank_search_results(query: str, results: list[dict]) -> list[dict]:
         raise ValueError(f"並べ替え中にエラーが発生しました: {e}")
 
 
+async def generate_summary(scraped_content: str, question: str) -> str:
+    """
+    スクレイピングした内容をOpenAI APIで処理し、質問内容に合わせて要約を行う。
+
+    Args:
+        scraped_content (str): スクレイピングして取得したウェブページのテキスト内容。
+        question (str): ユーザーが入力した質問内容。
+
+    Returns:
+        str: 質問内容に合った形式で要約されたテキスト。
+    """
+    try:
+
+        # チャット補完のリクエスト
+        chat_completion = client.chat.completions.create(
+            model="gpt-4o-mini",  # 使用するモデル
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "あなたはウェブページの要約に特化したAIアシスタントです。"
+                        "以下のスクレイピング内容を、ユーザーの質問に適した内容になるように要約してください。"
+                        "文字数としては200文字程度としてください"
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"スクレイピング内容:\n{scraped_content}\n\n"
+                        f"質問: {question}\n\n"
+                        "この質問に答えるための要約を生成してください。"
+                    )
+                }
+            ],
+            temperature=0.7,
+            max_tokens=150,
+            n=1  # 生成する選択肢の数
+        )
+
+        # 結果を取り出す
+        search_query = chat_completion.choices[0].message.content.strip()
+
+        return search_query
+
+    except Exception as e:
+        print(f"Error generating search query: {str(e)}")
+        return None
+
+
+
+async def process_search_results(query: str, results: list[dict]) -> list[dict]:
+    """
+    検索結果を並べ替え、上位3件をスクレイピングし、質問内容に合った要約を生成する。
+
+    Args:
+        query (str): 検索クエリ。
+        results (list[dict]): 検索結果のリスト。
+            構造:
+            [
+                {
+                    "title": str,  # 検索結果のタイトル "url": str, # 検索結果のURL "snippet": str # 検索結果の概要
+                },
+            ]
+
+    Returns:
+        dict: 質問内容に基づいた全体要約と関連する参考情報を含む辞書。
+            構造:
+            {
+                "answer": {
+                    "message": str,  # 全体の要約結果
+                    "references": [
+                        {
+                            "title": str,  # 参考記事のタイトル
+                            "url": str     # 参考記事のURL
+                        },
+                        ...
+                    ]
+                }
+            }
+    """
+    summaries = []
+
+    for result in results:
+        url = result["url"]
+        content = await scrape_page_content(url)
+        if content:
+            summary = await generate_summary(content, query)
+            summaries.append({"title": result["title"], "url": url, "summary": summary})
+
+    # for item in summaries:
+    #     print(item["summary"])
+
+
+    # summariesの"summary"部分を結合して統合要約を生成
+    combined_summaries = "\n".join([entry["summary"] for entry in summaries])
+    final_summary = await generate_summary(combined_summaries, query)
+
+    # 辞書型に再構成
+    response = {
+        "answer": {
+            "message": final_summary,
+            "references": [{"title": entry["title"], "url": entry["url"]} for entry in summaries]
+        }
+    }
+
+    return response
+
+
 if __name__ == "__main__":
     async def main():
         # ユーザーに質問を入力してもらう
-        question = input("検索クエリを生成したい質問を入力してください: ")
+        question = "今の徳島の県知事を教えて"
 
         # generate_search_query関数を実行して検索クエリを生成
-        search_query = await generate_search_query(question)
-        # search_query = await generate_word_answer(question)
+        # search_query = await generate_search_query(question)
+        answer = await generate_word_answer(question)
 
-        if search_query:
-            print(f"生成された検索クエリ: {search_query}")
-        else:
-            print("検索クエリの生成に失敗しました。")
+        print(answer)
+        # if search_query:
+        #     print(f"生成された検索クエリ: {search_query}")
+        # else:
+        #     print("検索クエリの生成に失敗しました。")
+
+        # # 検索結果を取得（Google API または DuckDuckGo API）
+        # search_results = await search_with_fallback(search_query)
+
+        # ranked_results = await rank_search_results(search_query,search_results)
+
+        # response = await process_search_results(question,ranked_results)
+
+        # print(json.dumps(response, indent=2, ensure_ascii=False))
+
 
     # asyncioのイベントループでmainを実行
     asyncio.run(main())

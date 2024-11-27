@@ -1,6 +1,13 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, make_response
 from app.repositories.repository import SeijiTalkRepository
 from app.services.google_auth_service import fetch_user_info
+from app.services.question_service import process_question
+from app.models.model import Question, Status, Answer, RelatedWord, Reference
+import asyncio
+import threading
+
+question_bp = Blueprint("question_bp", __name__)
+
 
 question_bp = Blueprint('api/questions', __name__)
 
@@ -41,6 +48,41 @@ def get_user_info_from_request():
     return user_info, 200
 
 
+def validate_user_and_get(user_info_function):
+    """
+    リクエストからユーザー情報を取得し、検証してデータベースに登録または取得する。
+
+    Args:
+        user_info_function (function): ユーザー情報を取得する関数（例: get_user_info_from_request）
+
+    Returns:
+        tuple:
+            - user: ユーザーオブジェクト (成功時)
+            - error_response: エラーがあればJSONレスポンスオブジェクト (失敗時)
+            - status_code: HTTPステータスコード
+    """
+    try:
+        # ユーザー情報の取得
+        user_info, status_code = user_info_function()
+        if status_code != 200:
+            return None, jsonify(user_info), status_code
+
+        # ユーザー情報を確認し、存在しなければ登録
+        user = SeijiTalkRepository.get_or_add_user(user_info)
+        return user, None, 200
+
+    except Exception as e:
+        return None, jsonify({"error": "An unexpected error occurred.", "details": str(e)}), 500
+
+def run_async_task(async_func, *args):
+    """
+    非同期関数をスレッド内で実行するヘルパー関数。
+    """
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(async_func(*args))
+    loop.close()
+
 @question_bp.route('', methods=['POST'])
 def create_question():
     """
@@ -48,19 +90,16 @@ def create_question():
     非同期処理のステータスとして 202 Accepted を返し、質問はデータベースに保存します。
     """
     try:
-        # ユーザー情報の取得
-        user_info, status_code = get_user_info_from_request()
-        if status_code != 200:
-            return jsonify(user_info), status_code
-
-        # ユーザー情報を確認し、なければデータベースに登録
-        user = SeijiTalkRepository.get_or_add_user(user_info)
-
+        # ユーザー情報の検証と取得
+        user, error_response, status_code = validate_user_and_get(get_user_info_from_request)
+        if error_response:
+            return error_response, status_code
+        
         # リクエストデータの検証
         data = request.get_json()
         if not data or "message" not in data or "mode" not in data:
             return jsonify({"error": "Invalid request body"}), 400
-
+        
         # 質問を登録
         new_question = SeijiTalkRepository.create_question(
             user_id=user.id,
@@ -68,74 +107,176 @@ def create_question():
             mode_name=data["mode"]
         )
 
+        # 非同期タスクをスレッドで実行
+        thread = threading.Thread(target=run_async_task, args=(process_question, new_question.id))
+        thread.start()
+        
         # 質問IDを返却（非同期ステータス）
         return jsonify({
             "question_id": new_question.id,
             "mode": new_question.mode.name,
-            "state": "PENDING"
+            "state": new_question.status.name
         }), 202
 
-    except ValueError as e:
-        # バリデーションエラー
-        return jsonify({"error": str(e)}), 400
+
     except Exception as e:
-        # 予期せぬエラーをキャッチ
         return jsonify({"error": str(e)}), 500
     
 
-# @bp.route('/unkos', methods=['GET'])
-# def get_all_unkos():
-#     try:
-#         unkos = UnkoRepository.get_unkos()
-#         unkos_list = [unko for unko in unkos]
-#         return jsonify(unkos_list), 200
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
 
+@question_bp.route('/<string:question_id>', methods=['GET'])
+def get_question_answer(question_id):
+    """
+    質問の回答を取得するエンドポイント。
 
-# @bp.route('/unko/<int:id>', methods=['GET'])
-# def get_unko_by_id(id):
-#     """
-#     特定のIDに対応するうんこデータを取得するエンドポイント。
+    Args:
+        question_id (str): 質問ID。
 
-#     Args:
-#         id (int): URLから渡されるうんこID。
+    Returns:
+        JSON: 質問の回答に応じたレスポンス。
+    """
+    try:
 
-#     Returns:
-#         Response: 指定したIDのうんこデータをJSON形式で返す。
-#                   もしIDが見つからなければ404エラーを返す。
-#     """
-#     try:
-#         # UnkoRepositoryのget_unkoメソッドを使って特定のうんこを取得
-#         unko_data = UnkoRepository.get_unko(id)
-#         if unko_data:  # データが存在する場合
-#             return jsonify(unko_data), 200
-#         else:  # データが存在しない場合
-#             return jsonify({"error": "Unko not found"}), 404
-#     except Exception as e:  # 予期せぬエラーが発生した
-#         return jsonify({"error": str(e)}), 500
-    
-# @bp.route('/unko', methods=['POST'])
-# def create_new_unko():
-    
-#     """
-#     新しいうんこデータを作成するエンドポイント。
-#     """
-#     try:
-#         # リクエストボディからデータを取得
-#         data = request.get_json()
+        # ユーザー情報の検証と取得
+        user, error_response, status_code = validate_user_and_get(get_user_info_from_request)
+        if error_response:
+            return error_response, status_code
 
-#         # 必要なキーが揃っているか確認
-#         if not all(k in data for k in ("name", "color_id", "size_id")):
-#             return jsonify({"error": "Invalid input data"}), 400
+        # 質問を取得
+        question = Question.query.filter_by(id=question_id).first()
+        if not question:
+            return make_response(jsonify({"error": f"Question with ID '{question_id}' not found."}), 404)
 
-#         # UnkoRepository の create_unko メソッドを呼び出してデータを作成
-#         new_unko = UnkoRepository.create_unko(
-#             unko_name=data["name"],
-#             color_id=data["color_id"],
-#             size_id=data["size_id"]
-#         )
-#         return jsonify(new_unko), 201  # 成功時に201 Createdを返す
+        # 質問のモードを取得
+        mode = question.mode.name
+        state = question.status.name
 
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500  # エラー発生時に500を返す
+        # PENDING 状態の場合
+        if state == "PENDING":
+            return make_response(
+                jsonify({
+                    "question_id": question.id,
+                    "mode": mode,
+                    "state": state,
+                }), 202
+            )
+
+        # FAILURE 状態の場合
+        if state == "FAILURE":
+            return make_response(
+                jsonify({
+                    "question_id": question.id,
+                    "mode": mode,
+                    "state": state,
+                }), 500
+            )
+
+        # SUCCESS 状態の場合
+        answer = Answer.query.filter_by(question_id=question.id).first()
+        if not answer:
+            return make_response(jsonify({"error": "Answer not found for SUCCESS state."}), 500)
+
+        # 用語モードの場合
+        if mode == "word":
+            related_words = [rw.related_word for rw in RelatedWord.query.filter_by(answer_id=answer.id).all()]
+            return make_response(
+                jsonify({
+                    "question_id": question.id,
+                    "mode": mode,
+                    "state": state,
+                    "answer": {
+                        "message": answer.message,
+                        "related_words": related_words
+                    }
+                }), 200
+            )
+
+        # 最新情報モードの場合
+        if mode == "latest":
+            references = [{"title": ref.title, "url": ref.url} for ref in Reference.query.filter_by(answer_id=answer.id).all()]
+            return make_response(
+                jsonify({
+                    "question_id": question.id,
+                    "mode": mode,
+                    "state": state,
+                    "answer": {
+                        "message": answer.message,
+                        "references": references
+                    }
+                }), 200
+            )
+
+        # モードが未知の場合
+        return make_response(jsonify({"error": f"Unknown mode '{mode}'."}), 400)
+
+    except Exception as e:
+        return make_response(
+            jsonify({
+                "error": "An error occurred while processing the request.",
+                "details": str(e)
+            }), 500
+        )
+
+@question_bp.route('/history', methods=['GET'])
+def get_question_history():
+    """
+    質問履歴を取得するエンドポイント。
+
+    Returns:
+        JSON: 質問履歴とその回答情報。
+    """
+    try:
+        # ユーザー情報の検証と取得
+        user, error_response, status_code = validate_user_and_get(get_user_info_from_request)
+        if error_response:
+            return error_response, status_code
+
+        # クエリパラメータの取得
+        offset = request.args.get('offset', default=0, type=int)
+        limit = request.args.get('limit', default=10, type=int)
+
+        # 質問履歴を取得
+        questions = Question.query.filter_by(user_id=user.id)\
+            .order_by(Question.created_at.desc())\
+            .offset(offset)\
+            .limit(limit)\
+            .all()
+
+        # 質問と回答情報を整形
+        question_history = []
+        for question in questions:
+            answer = Answer.query.filter_by(question_id=question.id).first()
+
+            if question.mode.name == "word":
+                related_words = [
+                    rw.related_word
+                    for rw in RelatedWord.query.filter_by(answer_id=answer.id).all()
+                ] if answer else []
+                question_history.append({
+                    "question_id": question.id,
+                    "message": question.message,
+                    "answer": {
+                        "message": answer.message if answer else None,
+                        "related_words": related_words
+                    }
+                })
+
+            elif question.mode.name == "latest":
+                references = [
+                    {"title": ref.title, "url": ref.url}
+                    for ref in Reference.query.filter_by(answer_id=answer.id).all()
+                ] if answer else []
+                question_history.append({
+                    "question_id": question.id,
+                    "message": question.message,
+                    "answer": {
+                        "message": answer.message if answer else None,
+                        "references": references
+                    }
+                })
+
+        # レスポンスの生成
+        return jsonify({"questions": question_history}), 200
+
+    except Exception as e:
+        return jsonify({"error": "An error occurred while retrieving question history.", "details": str(e)}), 500
