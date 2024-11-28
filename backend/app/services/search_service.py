@@ -109,12 +109,12 @@ def search_with_fallback(query: str) -> list[dict]:
 
 def main():
     try:
-        query = "徳島県 県知事"
+        query = "徳島県 県知事 現在"
         results = search_duckduckgo(query)
 
-        # print("=== 検索結果の全体を出力 ===")
-        # for result in results:
-        #     print(json.dumps(result, indent=2, ensure_ascii=False))
+        print("=== 検索結果の全体を出力 ===")
+        for result in results:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
 
         print("\n=== Snippetの内容をすべて表示 ===")
         for result in results:
@@ -123,3 +123,5 @@ def main():
     except Exception as e:
         print(f"エラーが発生しました: {e}")
 
+if __name__ == '__main__':
+    main()
