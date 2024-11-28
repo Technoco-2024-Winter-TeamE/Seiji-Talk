@@ -6,7 +6,6 @@ from app.models.model import Question, Status, Answer, RelatedWord, Reference
 import asyncio
 import threading
 
-question_bp = Blueprint("question_bp", __name__)
 
 
 question_bp = Blueprint('api/questions', __name__)
@@ -74,14 +73,6 @@ def validate_user_and_get(user_info_function):
     except Exception as e:
         return None, jsonify({"error": "An unexpected error occurred.", "details": str(e)}), 500
 
-def run_async_task(async_func, *args):
-    """
-    非同期関数をスレッド内で実行するヘルパー関数。
-    """
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(async_func(*args))
-    loop.close()
 
 @question_bp.route('', methods=['POST'])
 def create_question():
@@ -108,11 +99,15 @@ def create_question():
         )
 
         # `after_this_request` を使って後で処理
-        @after_this_request
-        def execute_task(response):
-            process_question(new_question.id)  # この処理をレスポンス後に実行
-            return response
+        # @after_this_request
+        # def execute_task(response):
+        #     process_question(new_question.id)  # この処理をレスポンス後に実行
+        #     return response
         
+        # 新しいスレッドでタスクを実行
+        task_thread = threading.Thread(target=process_question, args=(new_question.id,))
+        task_thread.start()
+
         # 質問IDを返却（非同期ステータス）
         return jsonify({
             "question_id": new_question.id,
