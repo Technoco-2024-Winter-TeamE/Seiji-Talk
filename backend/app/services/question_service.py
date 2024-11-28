@@ -2,7 +2,7 @@ from app import db
 from flask import current_app
 from app.models.model import Question, Answer
 from app.repositories.repository import SeijiTalkRepository
-from app.services.openai_service import generate_search_query,generate_word_answer,rank_search_results, process_search_results
+from app.services.openai_service import generate_search_query,generate_word_answer,generate_summary_snippet,rank_search_results, process_search_results
 from app.services.search_service import search_with_fallback
 import json
 import traceback
@@ -27,6 +27,9 @@ def handle_latest_mode(question :Question):
     try:
         # 質問から検索クエリを生成
         search_query = generate_search_query(question.message)
+
+        print("クエリの生成結果")
+        print(search_query)
         
         # 検索結果を取得（Google API または DuckDuckGo API）
         search_results = search_with_fallback(search_query)
@@ -40,8 +43,12 @@ def handle_latest_mode(question :Question):
         ranked_results = rank_search_results(search_query,search_results)
 
 
-        final_results = process_search_results(question.message,ranked_results)
+        final_results = generate_summary_snippet(question.message,ranked_results)
 
+        # final_results = process_search_results(question.message,ranked_results)
+
+        print("最終結果")
+        print(final_results)
 
         data = SeijiTalkRepository.save_latest_answer(question,final_results)
 

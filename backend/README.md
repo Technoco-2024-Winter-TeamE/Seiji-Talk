@@ -149,7 +149,7 @@ DROP DATABASE データベース名;
 
 curl -X POST https://localhost:5000/api/questions \
 -H "Content-Type: application/json" \
--H "Authorization: Bearer ya29.a0AeDClZCbaTo_7LYI2LRpzE8p4OHwAfRPlymrlyubalpgVYx6TbMgYc97pV2GXHAvlBmVqYGt8_Kl_lFNCXGUryTM4aXkGxkNBrefTtmxwKJn_2QtwLZ5XOqQm_qgtm9d9e-UljwnogmA5wY1JhXji4_DsEfo-EStl6AaCgYKAWESARMSFQHGX2Milgq4z64GBqdCo751Izhg4Q0170" \
+-H "Authorization: Bearer ya29.a0AeDClZA6Xt-aqioIlLDIvIRIOxCZFrVReP1Gg-fUbHA1CCpi-L7b-V5SlVLu4o0HRzdrZlVp7YjDIsz-4TlzJqs16mlRIYc98aPHQFjUQkgjEXtOomQEUMMaiPjf7kChmo183L9OxQHD70pf0n9YDbQT7X8Zc9HURS0aCgYKAXkSARMSFQHGX2Mi2pAettyBlVyfrnddcpZmWQ0170" \
 --insecure \
 -d '{
     "message": "このAPIの動作確認をしたい。",
@@ -158,9 +158,9 @@ curl -X POST https://localhost:5000/api/questions \
 
 
 
-curl -X GET https://localhost:5000/api/questions/d80ee9e3-6658-4f06-b2a3-457dddb8fbb4 \
+curl -X GET https://localhost:5000/api/questions/8126940e-ea96-4567-b26f-f3490c66dc01 \
 -H "Content-Type: application/json" \
--H "Authorization: Bearer ya29.a0AeDClZCfLhr95jTSGPj31zP8bZT2bqLw1HrH36rSZNYiCFMR2B0WW-4qRp1V68BDDo9yZ3uO4HJ2nHV2MGyTNwzUkHtPlnusFgLAJELtZl3eXdBkvNBeKdRNt7JauEsc8BA8mZD7tFNKf4iYj72oSD-IIycbeB7_ALgaCgYKARYSARMSFQHGX2MiTZpJ0dBU5k7lJqLL5BMmHw0170" \
+-H "Authorization: Bearer ya29.a0AeDClZA6Xt-aqioIlLDIvIRIOxCZFrVReP1Gg-fUbHA1CCpi-L7b-V5SlVLu4o0HRzdrZlVp7YjDIsz-4TlzJqs16mlRIYc98aPHQFjUQkgjEXtOomQEUMMaiPjf7kChmo183L9OxQHD70pf0n9YDbQT7X8Zc9HURS0aCgYKAXkSARMSFQHGX2Mi2pAettyBlVyfrnddcpZmWQ0170" \
 --insecure 
 
 

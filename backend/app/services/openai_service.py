@@ -266,7 +266,65 @@ def generate_summary(scraped_content: str, question: str) -> str:
         print(f"Error generating search query: {str(e)}")
         return None
 
+def generate_summary_snippet(question: str,ranked_results: list[dict]) -> list[dict]:
+    """
+    スクレイピングした内容をOpenAI APIで処理し、質問内容に合わせて要約を行う。
 
+    Args:
+        scraped_content (str): スクレイピングして取得したウェブページのテキスト内容。
+        question (str): ユーザーが入力した質問内容。
+
+    Returns:
+        str: 質問内容に合った形式で要約されたテキスト。
+    """
+
+    # スニペット部分だけを抽出して連結
+    snippets = [result["snippet"] for result in ranked_results if "snippet" in result]
+    concatenated_snippets = " ".join(snippets)
+
+    try:
+
+        # チャット補完のリクエスト
+        chat_completion = client.chat.completions.create(
+            model="gpt-4o-mini",  # 使用するモデル
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "あなたはウェブページの要約に特化したAIアシスタントです。"
+                        "検索の要約内容を入力するので、ユーザーの質問に適した内容になるように要約してください。"
+                        
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"サイトの要約内容:\n{concatenated_snippets}\n\n"
+                        f"質問: {question}\n\n"
+                        "この質問に答えるための要約を生成してください。"
+                    )
+                }
+            ],
+            temperature=0.7,
+            max_tokens=500,
+            n=1  # 生成する選択肢の数
+        )
+
+        # 結果を取り出す
+        final_summary = chat_completion.choices[0].message.content.strip()
+
+        response = {
+        "answer": {
+            "message": final_summary,
+            "references": [{"title": entry["title"], "url": entry["url"]} for entry in ranked_results]
+        }
+    }
+
+        return response
+
+    except Exception as e:
+        print(f"Error generating search query: {str(e)}")
+        return None
 
 def process_search_results(query: str, results: list[dict]) -> list[dict]:
     """
