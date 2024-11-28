@@ -1,13 +1,16 @@
 from openai import OpenAI
 import json
 import os
+from dotenv import load_dotenv 
 
 from app.services.scraping import scrape_page_content
 from app.services.search_service import search_with_fallback
 
 # OpenAI APIキーの設定（環境変数や設定ファイルから取得するのが推奨）
 #os.environ.get("OPENAI_API_KEY")
-client = OpenAI()
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key)
 
 
 def generate_search_query(question: str):
