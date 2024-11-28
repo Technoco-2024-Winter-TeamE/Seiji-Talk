@@ -52,7 +52,7 @@ sudo mysql -u root -p
 
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
 FLUSH PRIVILEGES;
-YourSecurePassword の部分を、好きなものに変更してください・
+password の部分を、好きなものに変更してください・
 
 パスワード認証が有効になったか確認します。
 
@@ -67,6 +67,8 @@ mysql -u root -p
 
 GoogleCloud⇒APIとサービス⇒OAuth同意画面
 ⇒新しいプロジェクト？⇒
+
+
 
 ##  初回セットアップ
 
@@ -102,7 +104,7 @@ sudo systemctl status mysql
 mysql -u root -p
 
 -- データベースの作成
-CREATE DATABASE Seiji_talk CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE DATABASE Seiji_Talk CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 # 注意！config.pyのURLは変更して下さい（ユーザ名・password・データベース名）
 
