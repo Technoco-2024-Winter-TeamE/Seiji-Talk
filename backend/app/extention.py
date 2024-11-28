@@ -12,6 +12,7 @@ def create_repeat_session() -> requests.Session:
     Returns:
         requests.Session: 再試行機能を持つセッションオブジェクト。
     """
+    
     session = requests.Session()
     retry = Retry(
         total=5, 

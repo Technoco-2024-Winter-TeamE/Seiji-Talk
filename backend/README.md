@@ -62,11 +62,13 @@ SELECT user, host, plugin FROM mysql.user WHERE user = 'root';
 
 mysql -u root -p
 
+## 
+
 
 ## Google認証のキー取得
 
-GoogleCloud⇒APIとサービス⇒OAuth同意画面
-⇒新しいプロジェクト？⇒
+google_config.jsonをダウンロード
+OPENAI_API_KEYをvenvの環境変数に登録
 
 
 
@@ -107,13 +109,15 @@ mysql -u root -p
 CREATE DATABASE Seiji_Talk CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 # 注意！config.pyのURLは変更して下さい（ユーザ名・password・データベース名）
+# OpenAIのAPIキーをvenv環境の環境変数として入れておいてください
+
 
 # データベースのマイグレーションを実行
+
 flask db upgrade
 
 # Flaskアプリケーションを起動
 python app.py
-
 
 
 # MySQLサービスを停止する(データサーバー側で)
@@ -145,13 +149,19 @@ DROP DATABASE データベース名;
 
 curl -X POST https://localhost:5000/api/questions \
 -H "Content-Type: application/json" \
--H "Authorization: Bearer ya29.a0AeDClZA1cwGtMPZueaJlDnyzsUIwOFsg-H5zh40cURYLAmov1t3zcDdoe3fURbaarU0T12p8PZXpqwipmxkepeqQ1IddGU8NplMKkqjs7s5qp8DCujTMLaUAVcYpRpga3EhKtSz3Tn3xI09_77P51aRQgX6mPRS99w8aCgYKAaUSARMSFQHGX2Mi8X3Wks4UUM35v_2X3Mc9WQ0170" \
+-H "Authorization: Bearer ya29.a0AeDClZCbaTo_7LYI2LRpzE8p4OHwAfRPlymrlyubalpgVYx6TbMgYc97pV2GXHAvlBmVqYGt8_Kl_lFNCXGUryTM4aXkGxkNBrefTtmxwKJn_2QtwLZ5XOqQm_qgtm9d9e-UljwnogmA5wY1JhXji4_DsEfo-EStl6AaCgYKAWESARMSFQHGX2Milgq4z64GBqdCo751Izhg4Q0170" \
 --insecure \
 -d '{
     "message": "このAPIの動作確認をしたい。",
     "mode": "word"
 }'
 
+
+
+curl -X GET https://localhost:5000/api/questions/d80ee9e3-6658-4f06-b2a3-457dddb8fbb4 \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer ya29.a0AeDClZCfLhr95jTSGPj31zP8bZT2bqLw1HrH36rSZNYiCFMR2B0WW-4qRp1V68BDDo9yZ3uO4HJ2nHV2MGyTNwzUkHtPlnusFgLAJELtZl3eXdBkvNBeKdRNt7JauEsc8BA8mZD7tFNKf4iYj72oSD-IIycbeB7_ALgaCgYKARYSARMSFQHGX2MiTZpJ0dBU5k7lJqLL5BMmHw0170" \
+--insecure 
 
 
 
