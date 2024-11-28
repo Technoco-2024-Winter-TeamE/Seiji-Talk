@@ -3,6 +3,7 @@ import ChatHistory from "../../components/Chat/ChatHistory";
 import ChatInput from "../../components/Chat/ChatInput";
 import ChatModeToggle from "../../components/Chat/ChatModeToggle";
 import { ChatMessage } from "../../types/ChatMessage";
+import LogoutButton from "../../components/Auth/LogoutButton";
 
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -65,6 +66,7 @@ const ChatPage: React.FC = () => {
         backgroundColor: "background.default",
       }}
     >
+      <LogoutButton></LogoutButton>
       <div
         style={{
           display: "flex",
