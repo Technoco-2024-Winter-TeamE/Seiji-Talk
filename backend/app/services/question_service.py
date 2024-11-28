@@ -1,9 +1,11 @@
 from app import db
+from flask import current_app
 from app.models.model import Question, Answer
 from app.repositories.repository import SeijiTalkRepository
 from app.services.openai_service import generate_search_query,generate_word_answer,rank_search_results, process_search_results
 from app.services.search_service import search_with_fallback
 import json
+import traceback
 
 # from openai_service import generate_search_query,generate_word_answer,rank_search_results
 # from search_service import search_with_fallback
@@ -80,21 +82,23 @@ def process_question(question_id: str) -> None:
     """
 
     try:
-        # 質問をデータベースから取得
-        question = Question.query.filter_by(id=question_id).first()
-        if not question:
-            raise ValueError(f"Question with ID '{question_id}' not found.")
+        # アプリケーションコンテキストの中で処理を実行
+        with current_app.app_context():
+            # 質問をデータベースから取得
+            question = Question.query.filter_by(id=question_id).first()
+            if not question:
+                raise ValueError(f"Question with ID '{question_id}' not found.")
 
-        if question.mode.name == "latest":
-            # "latest" モードに対する処理
-            handle_latest_mode(question)  # 例: 外部API呼び出しや検索
-        elif question.mode.name == "word":
-            # "word" モードに対する処理
-            handle_word_mode(question)  # 例: 関連語の抽出や検出に使う
+            if question.mode.name == "latest":
+                # "latest" モードに対する処理
+                handle_latest_mode(question)  # 外部API呼び出しや検索の処理
+            elif question.mode.name == "word":
+                # "word" モードに対する処理
+                handle_word_mode(question)  # 関連語の抽出や検出の処理
 
     except Exception as e:
         print(f"Error in process_question for question {question_id}: {str(e)}")
-
+        traceback.print_exc()
 
 
 if __name__ == "__main__":

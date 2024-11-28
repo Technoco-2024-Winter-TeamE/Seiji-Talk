@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
-async def scrape_page_content(url: str) -> str:
+def scrape_page_content(url: str) -> str:
     """
     指定したURLのページ内容を非同期でスクレイピングして、テキストを返す。
 

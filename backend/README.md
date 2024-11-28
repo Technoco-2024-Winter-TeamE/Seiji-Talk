@@ -143,7 +143,7 @@ DROP DATABASE データベース名;
 
 curl -X POST https://localhost:5000/api/questions \
 -H "Content-Type: application/json" \
--H "Authorization: Bearer ya29.a0AeDClZAfn5azRqs4Fe0Fv0GOsexm_3Y3i0dMk6_-szsOj9k1orWTa2WMZBTKpjEuYj_ZnrZ7g3rY5SAjmC9NuCcZ8MIzMCGIHtonlUmRD743W8wfArQCVmwC5ywbyMJL0MlTKo26d00zojlcX7noSXgNqDhb__E99aUaCgYKAeoSARMSFQHGX2Mid6TxkZ4OrCojydwM4cdePQ0170" \
+-H "Authorization: Bearer ya29.a0AeDClZA1cwGtMPZueaJlDnyzsUIwOFsg-H5zh40cURYLAmov1t3zcDdoe3fURbaarU0T12p8PZXpqwipmxkepeqQ1IddGU8NplMKkqjs7s5qp8DCujTMLaUAVcYpRpga3EhKtSz3Tn3xI09_77P51aRQgX6mPRS99w8aCgYKAaUSARMSFQHGX2Mi8X3Wks4UUM35v_2X3Mc9WQ0170" \
 --insecure \
 -d '{
     "message": "このAPIの動作確認をしたい。",
@@ -155,9 +155,12 @@ curl -X POST https://localhost:5000/api/questions \
 
 curl -X POST https://localhost:5000/api/questions \
 -H "Content-Type: application/json" \
--H "Authorization: Bearer ya29.a0AeDClZAugy925Jyh9ZdwUbgPjlL5KQ1xodnNd3Szu6EgPa3cApQcjqejzC4thL80TLkdiXy46c1ZFVcsL7QkTuRG30SiMjY9bFgg11znWSbWSn8bokRU4LqhxTCg8rxjk59Ze7itWjGBZxcC-_kD7t3m4xAsMKBuDUwaCgYKATUSARMSFQHGX2MihorDTnD8qNWN2zY-in2LPA0170" \
+-H "Authorization: Bearer ya29.a0AeDClZDsuK67XFWoMAW1Xn89U-elS7xBo_ptZjSgF3uY7wWdfbuS2v-XOIyPkdqMpn6Fc58UbIdVL9ZAGNZhFKaCddhwZU7eWPvsCeynUwtRu1z468V93inVVeuJ6OGqtmRaO7Ocl_reb9YvacQW6Te3Rix6IU4wTYEaCgYKAc0SARMSFQHGX2Misn-N7YbQOBjg7khiePvY0Q0170" \
 --insecure \
 -d '{
     "message": "直接請求権について教えて",
     "mode": "word"
 }'
+
+
+curl -X GET "https://localhost:5000/api/questions/history?offset=0&limit=4" -H "Authorization: Bearer ya29.a0AeDClZA1cwGtMPZueaJlDnyzsUIwOFsg-H5zh40cURYLAmov1t3zcDdoe3fURbaarU0T12p8PZXpqwipmxkepeqQ1IddGU8NplMKkqjs7s5qp8DCujTMLaUAVcYpRpga3EhKtSz3Tn3xI09_77P51aRQgX6mPRS99w8aCgYKAaUSARMSFQHGX2Mi8X3Wks4UUM35v_2X3Mc9WQ0170" --insecure
