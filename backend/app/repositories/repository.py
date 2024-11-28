@@ -139,6 +139,14 @@ class SeijiTalkRepository:
             if not answer_message:
                 raise ValueError("Answer message is missing in result_data.")
             
+
+
+            existing_answer = Answer.query.filter_by(question_id=question.id).first()
+
+            if existing_answer:
+                print(f"Answer for Question {question.id} already exists.")
+                return existing_answer  # 既存の回答を返す
+            
             # 新しい回答を登録
             new_answer = Answer(
                 question_id=question.id,
@@ -198,6 +206,13 @@ class SeijiTalkRepository:
             if not isinstance(related_words, list):
                 raise ValueError("Related words must be a list.")
 
+
+            existing_answer = Answer.query.filter_by(question_id=question.id).first()
+
+            if existing_answer:
+                print(f"Answer for Question {question.id} already exists.")
+                return existing_answer  # 既存の回答を返す
+            
             # 新しい回答を登録
             new_answer = Answer(
                 question_id=question.id,

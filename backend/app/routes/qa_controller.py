@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, make_response, after_this_request
+from flask import Blueprint, jsonify, request, make_response, current_app
 from app.repositories.repository import SeijiTalkRepository
 from app.services.google_auth_service import fetch_user_info
 from app.services.question_service import process_question
@@ -97,15 +97,10 @@ def create_question():
             message=data["message"],
             mode_name=data["mode"]
         )
-
-        # `after_this_request` を使って後で処理
-        # @after_this_request
-        # def execute_task(response):
-        #     process_question(new_question.id)  # この処理をレスポンス後に実行
-        #     return response
-        
+       
         # 新しいスレッドでタスクを実行
-        task_thread = threading.Thread(target=process_question, args=(new_question.id,))
+        app = current_app._get_current_object()  # アプリケーションインスタンスを取得
+        task_thread = threading.Thread(target=process_question, args=(app, new_question.id))
         task_thread.start()
 
         # 質問IDを返却（非同期ステータス）

@@ -292,6 +292,7 @@ def generate_summary_snippet(question: str,ranked_results: list[dict]) -> list[d
                     "role": "system",
                     "content": (
                         "あなたはウェブページの要約に特化したAIアシスタントです。"
+                        "加えて政治や社会に関する質問に的確に対応する専門家でもあります。"
                         "検索の要約内容を入力するので、ユーザーの質問に適した内容になるように要約してください。"
                         
                     )
