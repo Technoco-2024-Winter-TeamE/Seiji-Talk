@@ -36,14 +36,27 @@ const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, loading,
         variant="outlined"
         sx={{
           borderRadius: "20px",
+          boxShadow: "0px 2px 3px rgba(0, 0, 0, 0.1)",
           "& .MuiOutlinedInput-root": {
-            borderRadius: "20px", // 入力フォームを丸く
+            borderRadius: "20px",
+            backgroundColor: "white",
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "primary.main",
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "primary.main", // フォーカス時のボーダーカラー
+              borderWidth: "2px", // フォーカス時のボーダーの太さ
+            },
+          },
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "primary.light", // 通常時のボーダーカラー
+            borderWidth: "2px", // ボーダーの太さ
           },
         }}
       />
+
       <Button
         variant="contained"
-        color="primary"
         onClick={onSend}
         disabled={loading}
         sx={{
@@ -53,6 +66,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ value, onChange, onSend, loading,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          color: "primary.light",
+          backgroundColor: "primary.main",
+          "&:hover": {
+            backgroundColor: "secondary.main", // ホバー時の背景色
+          },
         }}
       >
         <SendIcon />
