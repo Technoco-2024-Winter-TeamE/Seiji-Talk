@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, make_response, after_this_request
+from flask import Blueprint, jsonify, request, make_response, current_app
 from app.repositories.repository import SeijiTalkRepository
 from app.services.google_auth_service import fetch_user_info
 from app.services.question_service import process_question
@@ -6,7 +6,6 @@ from app.models.model import Question, Status, Answer, RelatedWord, Reference
 import asyncio
 import threading
 
-question_bp = Blueprint("question_bp", __name__)
 
 
 question_bp = Blueprint('api/questions', __name__)
@@ -74,14 +73,6 @@ def validate_user_and_get(user_info_function):
     except Exception as e:
         return None, jsonify({"error": "An unexpected error occurred.", "details": str(e)}), 500
 
-def run_async_task(async_func, *args):
-    """
-    非同期関数をスレッド内で実行するヘルパー関数。
-    """
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(async_func(*args))
-    loop.close()
 
 @question_bp.route('', methods=['POST'])
 def create_question():
@@ -106,13 +97,12 @@ def create_question():
             message=data["message"],
             mode_name=data["mode"]
         )
+       
+        # 新しいスレッドでタスクを実行
+        app = current_app._get_current_object()  # アプリケーションインスタンスを取得
+        task_thread = threading.Thread(target=process_question, args=(app, new_question.id))
+        task_thread.start()
 
-        # `after_this_request` を使って後で処理
-        @after_this_request
-        def execute_task(response):
-            process_question(new_question.id)  # この処理をレスポンス後に実行
-            return response
-        
         # 質問IDを返却（非同期ステータス）
         return jsonify({
             "question_id": new_question.id,

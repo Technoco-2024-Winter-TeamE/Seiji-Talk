@@ -1,6 +1,4 @@
-from app import db
-from flask import current_app
-from app.models.model import Question, Answer
+from app.models.model import Question
 from app.repositories.repository import SeijiTalkRepository
 from app.services.openai_service import generate_search_query,generate_word_answer,generate_summary_snippet,rank_search_results, process_search_results
 from app.services.search_service import search_with_fallback
@@ -77,11 +75,12 @@ def handle_word_mode(question :Question):
 
 
 
-def process_question(question_id: str) -> None:
+def process_question(app, question_id: str) -> None:
     """
     質問IDを受け取り、対応する質問を取得して非同期で処理を行う。
 
     Args:
+        app (Flask): Flaskアプリケーションインスタンス。
         question_id (str): 質問のID。
 
     Returns:
@@ -90,7 +89,7 @@ def process_question(question_id: str) -> None:
 
     try:
         # アプリケーションコンテキストの中で処理を実行
-        with current_app.app_context():
+        with app.app_context():
             # 質問をデータベースから取得
             question = Question.query.filter_by(id=question_id).first()
             if not question:

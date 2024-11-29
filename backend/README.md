@@ -149,30 +149,21 @@ DROP DATABASE データベース名;
 
 curl -X POST https://localhost:5000/api/questions \
 -H "Content-Type: application/json" \
--H "Authorization: Bearer ya29.a0AeDClZA6Xt-aqioIlLDIvIRIOxCZFrVReP1Gg-fUbHA1CCpi-L7b-V5SlVLu4o0HRzdrZlVp7YjDIsz-4TlzJqs16mlRIYc98aPHQFjUQkgjEXtOomQEUMMaiPjf7kChmo183L9OxQHD70pf0n9YDbQT7X8Zc9HURS0aCgYKAXkSARMSFQHGX2Mi2pAettyBlVyfrnddcpZmWQ0170" \
+-H "Authorization: Bearer ya29.a0AeDClZBNUkZk_JiNeUQv52ovdz7jG8Z5ZnJTwAURL9f_Kp0MjyseI-BtFnTuLn18Wx9DTaZknAQwxU9YJPHyFVRG8Y5wRfaNihBRjmRirPkbWkSAcyNEbuNywZpFSzUKqs0v7j4GyvwORYI7Bi4-mD0CI7jie6KkdlsaCgYKAXkSARMSFQHGX2Mi9X0OKA1ln7xqgC0fCzykVA0170" \
 --insecure \
 -d '{
-    "message": "このAPIの動作確認をしたい。",
-    "mode": "word"
+    "message": "徳島県知事はだれですか",
+    "mode": "latest"
 }'
 
 
 
-curl -X GET https://localhost:5000/api/questions/8126940e-ea96-4567-b26f-f3490c66dc01 \
+curl -X GET https://localhost:5000/api/questions/adf3f0d7-edf0-4c5f-adc0-c56fc4b654a6 \
 -H "Content-Type: application/json" \
--H "Authorization: Bearer ya29.a0AeDClZA6Xt-aqioIlLDIvIRIOxCZFrVReP1Gg-fUbHA1CCpi-L7b-V5SlVLu4o0HRzdrZlVp7YjDIsz-4TlzJqs16mlRIYc98aPHQFjUQkgjEXtOomQEUMMaiPjf7kChmo183L9OxQHD70pf0n9YDbQT7X8Zc9HURS0aCgYKAXkSARMSFQHGX2Mi2pAettyBlVyfrnddcpZmWQ0170" \
+-H "Authorization: Bearer ya29.a0AeDClZBNUkZk_JiNeUQv52ovdz7jG8Z5ZnJTwAURL9f_Kp0MjyseI-BtFnTuLn18Wx9DTaZknAQwxU9YJPHyFVRG8Y5wRfaNihBRjmRirPkbWkSAcyNEbuNywZpFSzUKqs0v7j4GyvwORYI7Bi4-mD0CI7jie6KkdlsaCgYKAXkSARMSFQHGX2Mi9X0OKA1ln7xqgC0fCzykVA0170" \
 --insecure 
 
 
 
-curl -X POST https://localhost:5000/api/questions \
--H "Content-Type: application/json" \
--H "Authorization: Bearer ya29.a0AeDClZDsuK67XFWoMAW1Xn89U-elS7xBo_ptZjSgF3uY7wWdfbuS2v-XOIyPkdqMpn6Fc58UbIdVL9ZAGNZhFKaCddhwZU7eWPvsCeynUwtRu1z468V93inVVeuJ6OGqtmRaO7Ocl_reb9YvacQW6Te3Rix6IU4wTYEaCgYKAc0SARMSFQHGX2Misn-N7YbQOBjg7khiePvY0Q0170" \
---insecure \
--d '{
-    "message": "直接請求権について教えて",
-    "mode": "word"
-}'
 
-
-curl -X GET "https://localhost:5000/api/questions/history?offset=0&limit=4" -H "Authorization: Bearer ya29.a0AeDClZA1cwGtMPZueaJlDnyzsUIwOFsg-H5zh40cURYLAmov1t3zcDdoe3fURbaarU0T12p8PZXpqwipmxkepeqQ1IddGU8NplMKkqjs7s5qp8DCujTMLaUAVcYpRpga3EhKtSz3Tn3xI09_77P51aRQgX6mPRS99w8aCgYKAaUSARMSFQHGX2Mi8X3Wks4UUM35v_2X3Mc9WQ0170" --insecure
+curl -X GET "https://localhost:5000/api/questions/history?offset=0&limit=4" -H "Authorization: Bearer ya29.a0AeDClZBNUkZk_JiNeUQv52ovdz7jG8Z5ZnJTwAURL9f_Kp0MjyseI-BtFnTuLn18Wx9DTaZknAQwxU9YJPHyFVRG8Y5wRfaNihBRjmRirPkbWkSAcyNEbuNywZpFSzUKqs0v7j4GyvwORYI7Bi4-mD0CI7jie6KkdlsaCgYKAXkSARMSFQHGX2Mi9X0OKA1ln7xqgC0fCzykVA0170" --insecure
